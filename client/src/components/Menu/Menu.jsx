@@ -2,7 +2,7 @@ import { NavLink } from 'react-router';
 import './Menu.css';
 import DarkLight from '../DarkLight/DarkLight';
 import { useContext } from 'react';
-import ThemeContext from '../../context/ThemeContext';
+import ThemeContext from '../../context/ThemeContext'; 
 
 export default function Menu({ title }) {
 
