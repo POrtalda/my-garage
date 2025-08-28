@@ -1,29 +1,47 @@
-.active{
-    color: red;
-}
-
-.menu{
-    transition: background-color 0.3s ease, color 0.3s ease; /* Transizione morbida */
-    
-}
-
-.menulight {
-background-color: #71f0ae; /* Sfondo chiaro */
-  color: #333333;               /* Testo scuro */
-}
-
-.menu_dark {
-  background-color: #121212;    /* Sfondo scuro */
-  color: #71f0ae;           /* Testo chiaro */
-}
-
-ul {
+.menu {
   width: 100%;
   height: 60px;
   display: flex;
-  flex-direction: row;
   justify-content: space-around;
   align-items: center;
   list-style: none;
-  background-color: rgb(138, 241, 241);
+  margin: 0;
+  padding: 0;
+
+  /* Transizione morbida */
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  /* posizione per z-index */
+  position: relative;
+  z-index: 1000;
+}
+
+/* Tema chiaro */
+.menu_light {
+  background-color: #a9e1fa; /* azzurro chiaro */
+  color: #222;
+}
+
+/* Tema scuro */
+.menu_dark {
+  background-color: #003366; /* blu scuro */
+  color: #f0f0f0;
+}
+
+/* Link */
+.menu li a {
+  color: inherit;
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.menu li a:hover {
+  opacity: 0.9;
+}
+
+.menu li a.active {
+  color: #2d770a;
+  font-weight: 700;
 }

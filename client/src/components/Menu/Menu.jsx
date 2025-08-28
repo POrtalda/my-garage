@@ -9,7 +9,7 @@ export default function Menu({ title }) {
     const {isDarkMode} = useContext(ThemeContext);
     return(
         <>
-            <ul className={isDarkMode ? 'menu menu_dark' : 'menu menulight'}>
+            <ul className={isDarkMode ? 'menu menu_dark' : 'menu menu_light'}>
                 <li>
                     <NavLink to='/'>Home</NavLink>
                 </li>
