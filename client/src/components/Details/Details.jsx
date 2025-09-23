@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router"; // ✅ import useNavigate
 import "./Details.css";
 import ThemeContext from "../../context/ThemeContext";
 
-// Converti "DD/MM/YYYY" o simili in Date
 function parseDate(dateString) {
   if (!dateString) return null;
   if (dateString.includes("-")) return new Date(dateString);
@@ -12,7 +12,6 @@ function parseDate(dateString) {
   return new Date(year, month - 1, day);
 }
 
-// Converti Date in YYYY-MM-DD per input type="date"
 function formatDateForInput(dateString) {
   const date = parseDate(dateString);
   if (!date) return "";
@@ -22,8 +21,10 @@ function formatDateForInput(dateString) {
   return `${year}-${month}-${day}`;
 }
 
-export default function Details({ vehicle, onUpdate }) {
+export default function Details({ vehicle, onUpdate, onDelete }) {
   const { isDarkMode } = useContext(ThemeContext);
+  const navigate = useNavigate(); // ✅ Hook per navigare
+
   const [revision, setRevision] = useState(vehicle.scadenza_revisione || "");
   const [bollo, setBollo] = useState(vehicle.scadenza_bollo || "");
   const [insurance, setInsurance] = useState(vehicle.scadenza_assicurazione || "");
@@ -43,6 +44,13 @@ export default function Details({ vehicle, onUpdate }) {
     };
     onUpdate(updatedVehicle);
     alert("✅ Scadenze aggiornate!");
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("❌ Sei sicuro di voler eliminare questo veicolo?")) {
+      onDelete(vehicle.id);
+      navigate("/"); // ✅ torna alla Home dopo la cancellazione
+    }
   };
 
   return (
@@ -77,7 +85,15 @@ export default function Details({ vehicle, onUpdate }) {
         />
       </div>
 
-      <button onClick={handleRenew}>💾 Salva modifiche</button>
+      <div className="details-actions">
+        <button onClick={handleRenew}>💾 Salva modifiche</button>
+        <button
+          onClick={handleDelete}
+          className="btn-delete"
+        >
+          🗑️ Elimina
+        </button>
+      </div>
     </div>
   );
 }

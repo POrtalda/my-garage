@@ -81,6 +81,12 @@ export default function AppRoutes() {
     );
   };
 
+  const handleDeleteVehicle = (vehicleId) => {
+    if (window.confirm("❌ Sei sicuro di voler eliminare questo veicolo?")) {
+      setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
+    }
+  };
+
   return (
     <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode }}>
       <BrowserRouter>
@@ -112,7 +118,11 @@ export default function AppRoutes() {
             <Route
               path="details/:id"
               element={
-                <DetailsWrapper vehicles={vehicles} onUpdate={handleUpdateVehicle} />
+                <DetailsWrapper
+                  vehicles={vehicles}
+                  onUpdate={handleUpdateVehicle}
+                  onDelete={handleDeleteVehicle}
+                />
               }
             />
             <Route path="*" element={<p style={{ padding: "20px" }}>❌ Pagina non trovata</p>} />
@@ -123,12 +133,12 @@ export default function AppRoutes() {
   );
 }
 
-function DetailsWrapper({ vehicles, onUpdate }) {
+function DetailsWrapper({ vehicles, onUpdate, onDelete }) {
   const { id } = useParams();
   const vehicle = vehicles.find((v) => v.id.toString() === id.toString());
 
   return vehicle ? (
-    <Details vehicle={vehicle} onUpdate={onUpdate} />
+    <Details vehicle={vehicle} onUpdate={onUpdate} onDelete={onDelete} />
   ) : (
     <p style={{ padding: "20px" }}>❌ Veicolo non trovato</p>
   );
