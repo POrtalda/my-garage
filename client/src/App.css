@@ -1,11 +1,59 @@
-#root {
+.app {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;  
+  width: 100%;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding-bottom: 2rem; /* spazio sotto le card */
 }
 
-.app{
-  transition: background-color 0.3s ease, color 0.3s ease; /* Transizione morbida */
+/* input e button coerenti */
+input, button {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
 }
 
+input {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #222;
+}
+
+body.dark input {
+  background-color: #3c3c50;
+  color: #f5f5f5;
+  border: 1px solid #555;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4db6ac;
+  box-shadow: 0 0 5px rgba(77, 182, 172, 0.6);
+}
+
+button {
+  cursor: pointer;
+  background-color: #4db6ac;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+button:hover {
+  background-color: #009688;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+}
+
+body.dark button {
+  background-color: #00796b;
+  color: #f5f5f5;
+}
+
+body.dark button:hover {
+  background-color: #004d40;
+}

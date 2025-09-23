@@ -1,80 +1,79 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import "./Details.css";
+import ThemeContext from "../../context/ThemeContext";
 
-function Details({ vehicle, onUpdate }) {
-  // state per le date
-  const [revision, setRevision] = useState(vehicle.scadenza_revisione);
-  const [bollo, setBollo] = useState(vehicle.scadenza_bollo);
-  const [insurance, setInsurance] = useState(vehicle.scadenza_assicurazione);
+// Converti "DD/MM/YYYY" o simili in Date
+function parseDate(dateString) {
+  if (!dateString) return null;
+  if (dateString.includes("-")) return new Date(dateString);
+  const parts = dateString.split(/[\/\-.]/).map((p) => parseInt(p, 10));
+  if (parts.length !== 3) return null;
+  const [day, month, year] = parts;
+  return new Date(year, month - 1, day);
+}
 
-  // se cambia il veicolo, aggiorna i campi
+// Converti Date in YYYY-MM-DD per input type="date"
+function formatDateForInput(dateString) {
+  const date = parseDate(dateString);
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export default function Details({ vehicle, onUpdate }) {
+  const { isDarkMode } = useContext(ThemeContext);
+  const [revision, setRevision] = useState(vehicle.scadenza_revisione || "");
+  const [bollo, setBollo] = useState(vehicle.scadenza_bollo || "");
+  const [insurance, setInsurance] = useState(vehicle.scadenza_assicurazione || "");
+
   useEffect(() => {
-    setRevision(vehicle.scadenza_revisione);
-    setBollo(vehicle.scadenza_bollo);
-    setInsurance(vehicle.scadenza_assicurazione);
+    setRevision(vehicle.scadenza_revisione || "");
+    setBollo(vehicle.scadenza_bollo || "");
+    setInsurance(vehicle.scadenza_assicurazione || "");
   }, [vehicle]);
 
-  // funzione di aggiornamento
   const handleRenew = () => {
     const updatedVehicle = {
       ...vehicle,
       scadenza_revisione: revision,
       scadenza_bollo: bollo,
       scadenza_assicurazione: insurance,
-      // reset dei flag (puoi ricalcolarli in base alle nuove date)
-      expired_revision: false,
-      expired_car_tax: false,
-      expired_insurance: false,
-      expiring_revision: false,
-      expiring_car_tax: false,
-      expiring_insurance: false,
     };
-
-    // prendo tutti i veicoli dal localStorage
-    let vehicles = JSON.parse(localStorage.getItem("vehicles")) || [];
-
-    // sostituisco quello aggiornato
-    vehicles = vehicles.map(v =>
-      v.id === vehicle.id ? updatedVehicle : v
-    );
-
-    // salvo nel localStorage
-    localStorage.setItem("vehicles", JSON.stringify(vehicles));
-
-    // callback per aggiornare lo state del padre
-    if (onUpdate) onUpdate(updatedVehicle);
-
+    onUpdate(updatedVehicle);
     alert("✅ Scadenze aggiornate!");
   };
 
   return (
-    <div className="details-card">
+    <div className={isDarkMode ? "card-details dark" : "card-details light"}>
       <h2>{vehicle.brand} {vehicle.model}</h2>
-      <img src={vehicle.img_url} alt={vehicle.model} width="200" />
+      <img src={vehicle.img_url} alt={vehicle.model} />
 
-      <div>
-        <label>Scadenza revisione:</label>
+      <div className="input-group">
+        <label>Scadenza Revisione:</label>
         <input
           type="date"
-          value={revision}
-          onChange={e => setRevision(e.target.value)}
+          value={formatDateForInput(revision)}
+          onChange={(e) => setRevision(e.target.value)}
         />
       </div>
 
-      <div>
-        <label>Scadenza bollo:</label>
+      <div className="input-group">
+        <label>Scadenza Bollo:</label>
         <input
           type="date"
-          value={bollo}
-          onChange={e => setBollo(e.target.value)}
+          value={formatDateForInput(bollo)}
+          onChange={(e) => setBollo(e.target.value)}
         />
       </div>
 
-      <div>
-        <label>Scadenza assicurazione:</label>
+      <div className="input-group">
+        <label>Scadenza Assicurazione:</label>
         <input
           type="date"
-          value={insurance}
-          onChange={e => setInsurance(e.target.value)}
+          value={formatDateForInput(insurance)}
+          onChange={(e) => setInsurance(e.target.value)}
         />
       </div>
 
@@ -82,5 +81,3 @@ function Details({ vehicle, onUpdate }) {
     </div>
   );
 }
-
-export default Details;

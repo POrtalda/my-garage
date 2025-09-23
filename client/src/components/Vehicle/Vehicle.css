@@ -1,12 +1,37 @@
-.card-vehicle{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    /* border: 2px solid #090909; */
-    border-radius: 10px;
-    margin-bottom: 20px;
-    transition: background-color 0.3s ease, color 0.3s ease; /* Transizione morbida */
+.card-vehicle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  width: 90%;
+  max-width: 300px;
+  padding: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card-vehicle:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+}
+
+.card-vehicle_light {
+  background-color: #ffffff;
+  color: #222;
+  border: 1px solid #ddd;
+}
+
+.card-vehicle_dark {
+  background-color: #2c2c3e;
+  color: #f5f5f5;
+  border: 1px solid #444;
+}
+
+.card-vehicle-info h2, .card-vehicle-info h3 {
+  margin: 0;
+  text-align: center;
 }
 
 .card-traffic-img-light {
@@ -15,13 +40,14 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  margin-top: 0.5rem;
 }
 
 .card-traffic-img-light img {
-  width: 200px;         /* LARGHEZZA FISSA per tutte */
-  height: 150px;        /* ALTEZZA FISSA per tutte */
-  object-fit: contain;  /* Così non si deforma */
-  margin-bottom: 10px;  /* Spazio tra img e semaforo */
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .traffic-light-icon {
@@ -35,39 +61,11 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  opacity: 0;
+  opacity: 1;
   left: 50%;
   transform: translateX(-50%);
 }
 
-/* Posizionamento esatto sopra ogni luce */
-.dot.red {
-  background-color: red;
-  top: 174px; /* luce in alto */
-  opacity: 1;
-}
-
-.dot.orange {
-  background-color: orange;
-  top: 199px; /* luce centrale */
-  opacity: 1;
-}
-
-.dot.green {
-  background-color: green;
-  top: 224px; /* luce in basso */
-  opacity: 1;
-}
-
-.card-vehicle_light {
-background-color: #FAFAFA; /* Sfondo chiaro */
-  color: #333333;               /* Testo scuro */
-  border: 2px solid #090909;
-}
-
-.card-vehicle_dark {
-  background-color: #121212;    /* Sfondo scuro */
-  color: #F5F5F5;           /* Testo chiaro */
-  border: 2px solid #F5F5F5;
-}
-
+.dot.red { background-color: #e53935; top: 165px; }
+.dot.orange { background-color: #fb8c00; top: 190px; }
+.dot.green { background-color: #43a047; top: 215px; }

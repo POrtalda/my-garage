@@ -1,18 +1,21 @@
-/* Tema chiaro applicato a tutta la pagina */
 body.light {
-  background-color: #FAFAFA; /* Sfondo chiaro */
-  color: #333333;               /* Testo scuro */
+  background-color: #f0f4f8; /* più chiaro e moderno */
+  color: #222;
 }
 
-/* Tema scuro applicato a tutta la pagina */
 body.dark {
-  background-color: #121212;    /* Sfondo scuro */
-  color: #F5F5F5;           /* Testo chiaro */
+  background-color: #1e1e2f; /* scuro ma meno pesante del nero puro */
+  color: #f5f5f5;
 }
 
-/* Fa sì che la pagina copra sempre tutta l'altezza della finestra */
 body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease; /* Transizione morbida */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* contenuto spinto sotto il menu fisso */
+.main-content {
+  padding-top: 80px; /* altezza menu */
 }

@@ -1,0 +1,92 @@
+/* Sfondo scuro semitrasparente dietro la modale */
+.modal-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Box principale della modale */
+.modal {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Titolo */
+.modal h2 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  text-align: center;
+}
+
+/* Campi del form */
+.form-new-vehicle input {
+  width: 100%;
+  margin: 6px 0 12px 0;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Label sopra i campi data */
+.form-new-vehicle label {
+  font-size: 13px;
+  font-weight: bold;
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+/* Pulsanti */
+.modal-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.modal-actions button:first-child {
+  background: #28a745;
+  color: #fff;
+  margin-right: 10px;
+}
+
+.modal-actions button:first-child:hover {
+  background: #218838;
+}
+
+.modal-actions button:last-child {
+  background: #dc3545;
+  color: #fff;
+}
+
+.modal-actions button:last-child:hover {
+  background: #c82333;
+}
+
+/* Animazione di comparsa */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
