@@ -12,14 +12,33 @@ export default function AppRoutes() {
   const [vehicles, setVehicles] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  useEffect(() => { fetchVehicles(); }, []);
+  // 🔹 Al mount: prova a leggere dal localStorage, se vuoto fai fetch
+  useEffect(() => {
+    const storedVehicles = localStorage.getItem("vehicles");
+    if (storedVehicles) {
+      setVehicles(JSON.parse(storedVehicles));
+    } else {
+      fetchVehicles();
+    }
+  }, []);
 
   const fetchVehicles = () => {
     fetch(URL_API)
       .then((res) => res.json())
-      .then((data) => setVehicles(data.map((v) => addExpiryFlags(v))))
+      .then((data) => {
+        const withFlags = data.map((v) => addExpiryFlags(v));
+        setVehicles(withFlags);
+        localStorage.setItem("vehicles", JSON.stringify(withFlags)); // 🔹 salvi subito in LS
+      })
       .catch((err) => console.error("Errore fetch:", err));
   };
+
+  // 🔹 Ogni volta che cambia vehicles → aggiorna localStorage
+  useEffect(() => {
+    if (vehicles.length > 0) {
+      localStorage.setItem("vehicles", JSON.stringify(vehicles));
+    }
+  }, [vehicles]);
 
   useEffect(() => {
     const lsDark = JSON.parse(localStorage.getItem("vehicles-dark-mode"));
@@ -31,6 +50,7 @@ export default function AppRoutes() {
     document.body.className = isDarkMode ? "dark" : "light";
   }, [isDarkMode]);
 
+  // --- funzioni di utility già presenti ---
   function parseDate(dateString) {
     if (!dateString) return null;
     if (dateString.includes("-")) return new Date(dateString);
