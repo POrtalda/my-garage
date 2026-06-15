@@ -3,7 +3,7 @@ import "./App.css";
 import Vehicle from "./components/Vehicle/Vehicle";
 import ThemeContext from "./context/ThemeContext";
 
-function App({ vehicles }) {
+function App({ vehicles, showDashboard = false }) {
   const { isDarkMode } = useContext(ThemeContext);
 
   const dashboardSummary = useMemo(() => {
@@ -43,27 +43,29 @@ function App({ vehicles }) {
 
   return (
     <div className={isDarkMode ? "app dark" : "app light"}>
-      <section className="dashboard-summary" aria-label="Riepilogo veicoli">
-        <div className="dashboard-summary-card">
-          <span className="dashboard-summary-label">Veicoli totali</span>
-          <strong>{dashboardSummary.total}</strong>
-        </div>
+      {showDashboard && (
+        <section className="dashboard-summary" aria-label="Riepilogo veicoli">
+          <div className="dashboard-summary-card">
+            <span className="dashboard-summary-label">Veicoli totali</span>
+            <strong>{dashboardSummary.total}</strong>
+          </div>
 
-        <div className="dashboard-summary-card dashboard-summary-card--expired">
-          <span className="dashboard-summary-label">Scaduti</span>
-          <strong>{dashboardSummary.expired}</strong>
-        </div>
+          <div className="dashboard-summary-card dashboard-summary-card--expired">
+            <span className="dashboard-summary-label">Scaduti</span>
+            <strong>{dashboardSummary.expired}</strong>
+          </div>
 
-        <div className="dashboard-summary-card dashboard-summary-card--expiring">
-          <span className="dashboard-summary-label">In scadenza</span>
-          <strong>{dashboardSummary.expiring}</strong>
-        </div>
+          <div className="dashboard-summary-card dashboard-summary-card--expiring">
+            <span className="dashboard-summary-label">In scadenza</span>
+            <strong>{dashboardSummary.expiring}</strong>
+          </div>
 
-        <div className="dashboard-summary-card dashboard-summary-card--ok">
-          <span className="dashboard-summary-label">Tutto ok</span>
-          <strong>{dashboardSummary.ok}</strong>
-        </div>
-      </section>
+          <div className="dashboard-summary-card dashboard-summary-card--ok">
+            <span className="dashboard-summary-label">Tutto ok</span>
+            <strong>{dashboardSummary.ok}</strong>
+          </div>
+        </section>
+      )}
 
       {vehicles !== null ? (
         vehicles.map((v) => <Vehicle key={v.id} vehicle={v} />)

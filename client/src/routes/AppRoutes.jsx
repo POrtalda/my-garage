@@ -114,7 +114,7 @@ export default function AppRoutes() {
         <Menu title="My Garage" onAddVehicle={handleAddVehicle} />
         <div className="main-content">
           <Routes>
-            <Route path="/" element={<App vehicles={vehicles} />} />
+            <Route path="/" element={<App vehicles={vehicles} showDashboard />} />
             <Route
               path="expired"
               element={
