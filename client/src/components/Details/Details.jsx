@@ -6,7 +6,7 @@ import ThemeContext from "../../context/ThemeContext";
 function parseDate(dateString) {
   if (!dateString) return null;
   if (dateString.includes("-")) return new Date(dateString);
-  const parts = dateString.split(/[\/\-.]/).map((p) => parseInt(p, 10));
+  const parts = dateString.split(/[./-]/).map((p) => parseInt(p, 10));
   if (parts.length !== 3) return null;
   const [day, month, year] = parts;
   return new Date(year, month - 1, day);
