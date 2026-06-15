@@ -114,7 +114,18 @@ export default function AppRoutes() {
         <Menu title="My Garage" onAddVehicle={handleAddVehicle} />
         <div className="main-content">
           <Routes>
-            <Route path="/" element={<App vehicles={vehicles} showDashboard />} />
+            <Route
+              path="/"
+              element={
+                <App
+                  vehicles={vehicles}
+                  showDashboard
+                  emptyTitle="Nessun veicolo presente"
+                  emptyDescription="Aggiungi il tuo primo veicolo per iniziare a monitorare le scadenze."
+                />
+              }
+            />
+
             <Route
               path="expired"
               element={
@@ -125,9 +136,12 @@ export default function AppRoutes() {
                       v.expired_insurance ||
                       v.expired_revision
                   )}
+                  emptyTitle="Nessun veicolo scaduto ✅"
+                  emptyDescription="Tutte le scadenze sono sotto controllo."
                 />
               }
             />
+
             <Route
               path="expiring"
               element={
@@ -138,9 +152,12 @@ export default function AppRoutes() {
                       v.expiring_insurance ||
                       v.expiring_revision
                   )}
+                  emptyTitle="Nessun veicolo in scadenza 👌"
+                  emptyDescription="Non ci sono scadenze nei prossimi 30 giorni."
                 />
               }
             />
+
             <Route
               path="details/:id"
               element={
@@ -151,6 +168,7 @@ export default function AppRoutes() {
                 />
               }
             />
+
             <Route
               path="*"
               element={<p style={{ padding: "20px" }}>❌ Pagina non trovata</p>}
