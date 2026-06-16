@@ -53,22 +53,41 @@ function addExpiryFlags(v) {
 export default function AppRoutes() {
   const [vehicles, setVehicles] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const fetchVehicles = useCallback(() => {
+    setIsLoading(true);
+    setError("");
+
     fetch(URL_API)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Errore nel caricamento dei veicoli");
+        }
+
+        return res.json();
+      })
       .then((data) => {
         const withFlags = data.map((v) => addExpiryFlags(v));
         setVehicles(withFlags);
         localStorage.setItem("vehicles", JSON.stringify(withFlags));
       })
-      .catch((err) => console.error("Errore fetch:", err));
+      .catch((err) => {
+        console.error("Errore fetch:", err);
+        setError("Non riesco a caricare i dati iniziali. Riprova più tardi.");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   useEffect(() => {
     const storedVehicles = localStorage.getItem("vehicles");
+
     if (storedVehicles) {
       setVehicles(JSON.parse(storedVehicles));
+      setIsLoading(false);
     } else {
       fetchVehicles();
     }
@@ -120,6 +139,8 @@ export default function AppRoutes() {
                 <App
                   vehicles={vehicles}
                   showDashboard
+                  isLoading={isLoading}
+                  error={error}
                   emptyTitle="Nessun veicolo presente"
                   emptyDescription="Aggiungi il tuo primo veicolo per iniziare a monitorare le scadenze."
                 />
@@ -136,6 +157,8 @@ export default function AppRoutes() {
                       v.expired_insurance ||
                       v.expired_revision
                   )}
+                  isLoading={isLoading}
+                  error={error}
                   emptyTitle="Nessun veicolo scaduto ✅"
                   emptyDescription="Tutte le scadenze sono sotto controllo."
                 />
@@ -152,6 +175,8 @@ export default function AppRoutes() {
                       v.expiring_insurance ||
                       v.expiring_revision
                   )}
+                  isLoading={isLoading}
+                  error={error}
                   emptyTitle="Nessun veicolo in scadenza 👌"
                   emptyDescription="Non ci sono scadenze nei prossimi 30 giorni."
                 />

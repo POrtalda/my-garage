@@ -7,6 +7,8 @@ import ThemeContext from "./context/ThemeContext";
 function App({
   vehicles,
   showDashboard = false,
+  isLoading = false,
+  error = "",
   emptyTitle = "Nessun veicolo trovato",
   emptyDescription = "Non ci sono veicoli da mostrare in questa sezione.",
 }) {
@@ -16,8 +18,18 @@ function App({
     <div className={isDarkMode ? "app dark" : "app light"}>
       {showDashboard && <DashboardSummary vehicles={vehicles} />}
 
-      {vehicles === null ? (
-        <p>Loading vehicles...</p>
+      {isLoading ? (
+        <div className="state-message">
+          <div className="state-message-icon">⏳</div>
+          <h2>Caricamento veicoli...</h2>
+          <p>Sto recuperando le informazioni del tuo garage.</p>
+        </div>
+      ) : error ? (
+        <div className="state-message state-message-error">
+          <div className="state-message-icon">⚠️</div>
+          <h2>Qualcosa è andato storto</h2>
+          <p>{error}</p>
+        </div>
       ) : vehicles.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">🚗</div>
