@@ -114,3 +114,25 @@ body.dark .details-actions .btn-delete {
 body.dark .details-actions .btn-delete:hover {
   background-color: #7f0000;
 }
+
+.field-error {
+  display: block;
+  margin-top: 0.35rem;
+  color: #dc3545;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.input-error {
+  border-color: #dc3545;
+  outline-color: #dc3545;
+}
+
+.details-success-message {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  color: #198754;
+  background: rgba(25, 135, 84, 0.12);
+  font-weight: 600;
+}
