@@ -6,6 +6,16 @@ Il progetto nasce come applicazione portfolio e ha l’obiettivo di mostrare una
 
 ---
 
+## 🌐 Demo online
+
+Puoi provare la web app qui:
+
+👉 [Apri My Garage](https://my-garage-expiration.netlify.app/)
+
+> Nota: la demo è frontend-only. I dati iniziali vengono caricati da una JSON API esterna, mentre le modifiche effettuate vengono salvate nel `localStorage` del browser.
+
+---
+
 ## 🚗 Funzionalità principali
 
 * Visualizzazione lista veicoli
