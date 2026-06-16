@@ -1,3 +1,4 @@
+import { addExpiryFlags } from "../utils/vehicleDates";
 import { BrowserRouter, Route, Routes, useParams } from "react-router";
 import App from "../App";
 import "./AppRoutes.css";
@@ -7,48 +8,6 @@ import ThemeContext from "../context/ThemeContext";
 import Details from "../components/Details/Details";
 
 const URL_API = "https://portalda.github.io/fake-api-my-garage/my-garage.json";
-const daysBeforeExpiry = 30;
-
-function parseDate(dateString) {
-  if (!dateString) return null;
-  if (dateString.includes("-")) return new Date(dateString);
-
-  const parts = dateString.split(/[./-]/).map((p) => parseInt(p, 10));
-  if (parts.length !== 3) return null;
-
-  const [day, month, year] = parts;
-  return new Date(year, month - 1, day);
-}
-
-function checkStatus(dateString) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const expiryDate = parseDate(dateString);
-  if (!expiryDate) return { expired: false, expiring: false };
-  if (expiryDate < today) return { expired: true, expiring: false };
-
-  const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-  if (diffDays <= daysBeforeExpiry) return { expired: false, expiring: true };
-
-  return { expired: false, expiring: false };
-}
-
-function addExpiryFlags(v) {
-  const carTax = checkStatus(v.scadenza_bollo);
-  const insurance = checkStatus(v.scadenza_assicurazione);
-  const revision = checkStatus(v.scadenza_revisione);
-
-  return {
-    ...v,
-    expired_car_tax: carTax.expired,
-    expired_insurance: insurance.expired,
-    expired_revision: revision.expired,
-    expiring_car_tax: carTax.expiring,
-    expiring_insurance: insurance.expiring,
-    expiring_revision: revision.expiring,
-  };
-}
 
 export default function AppRoutes() {
   const [vehicles, setVehicles] = useState([]);
