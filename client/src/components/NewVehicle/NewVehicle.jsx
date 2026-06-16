@@ -1,46 +1,168 @@
 import { useState } from "react";
 import "./NewVehicle.css";
 
+const initialFormData = {
+  brand: "",
+  model: "",
+  img_url: "",
+  scadenza_bollo: "",
+  scadenza_assicurazione: "",
+  scadenza_revisione: "",
+};
+
+function validateVehicleForm(formData) {
+  const newErrors = {};
+
+  if (!formData.brand.trim()) {
+    newErrors.brand = "Inserisci la marca del veicolo.";
+  }
+
+  if (!formData.model.trim()) {
+    newErrors.model = "Inserisci il modello del veicolo.";
+  }
+
+  if (!formData.scadenza_bollo) {
+    newErrors.scadenza_bollo = "Inserisci la scadenza del bollo.";
+  }
+
+  if (!formData.scadenza_assicurazione) {
+    newErrors.scadenza_assicurazione =
+      "Inserisci la scadenza dell'assicurazione.";
+  }
+
+  if (!formData.scadenza_revisione) {
+    newErrors.scadenza_revisione = "Inserisci la scadenza della revisione.";
+  }
+
+  return newErrors;
+}
+
 export default function NewVehicle({ onAdd, onClose }) {
-  const [formData, setFormData] = useState({
-    brand: "",
-    model: "",
-    img_url: "",
-    scadenza_bollo: "",
-    scadenza_assicurazione: "",
-    scadenza_revisione: ""
-  });
+  const [formData, setFormData] = useState(initialFormData);
+  const [errors, setErrors] = useState({});
 
   function handleChange(e) {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    setFormData({ ...formData, [name]: value });
+
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    onAdd({ ...formData, id: Date.now() });
+
+    const validationErrors = validateVehicleForm(formData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    onAdd({
+      ...formData,
+      brand: formData.brand.trim(),
+      model: formData.model.trim(),
+      img_url: formData.img_url.trim(),
+      id: Date.now(),
+    });
+
     onClose();
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <h2>Aggiungi Veicolo</h2>
-        <form onSubmit={handleSubmit} className="form-new-vehicle">
-          <input type="text" name="brand" placeholder="Marca" value={formData.brand} onChange={handleChange} required />
-          <input type="text" name="model" placeholder="Modello" value={formData.model} onChange={handleChange} required />
-          <input type="text" name="img_url" placeholder="URL Immagine" value={formData.img_url} onChange={handleChange} required />
-          <label>Scadenza Bollo</label>
-          <input type="date" name="scadenza_bollo" value={formData.scadenza_bollo} onChange={handleChange} />
-          <label>Scadenza Assicurazione</label>
-          <input type="date" name="scadenza_assicurazione" value={formData.scadenza_assicurazione} onChange={handleChange} />
-          <label>Scadenza Revisione</label>
-          <input type="date" name="scadenza_revisione" value={formData.scadenza_revisione} onChange={handleChange} />
-          <div className="modal-actions">
-            <button type="submit">Conferma</button>
-            <button type="button" onClick={onClose}>Annulla</button>
-          </div>
-        </form>
-      </div>
+    <div className="new-vehicle">
+      <h2>Aggiungi Veicolo</h2>
+
+      <form onSubmit={handleSubmit} noValidate>
+        <label>
+          Marca
+          <input
+            type="text"
+            name="brand"
+            value={formData.brand}
+            onChange={handleChange}
+            className={errors.brand ? "input-error" : ""}
+          />
+          {errors.brand && <span className="field-error">{errors.brand}</span>}
+        </label>
+
+        <label>
+          Modello
+          <input
+            type="text"
+            name="model"
+            value={formData.model}
+            onChange={handleChange}
+            className={errors.model ? "input-error" : ""}
+          />
+          {errors.model && <span className="field-error">{errors.model}</span>}
+        </label>
+
+        <label>
+          URL immagine
+          <input
+            type="url"
+            name="img_url"
+            value={formData.img_url}
+            onChange={handleChange}
+            placeholder="Opzionale"
+          />
+        </label>
+
+        <label>
+          Scadenza Bollo
+          <input
+            type="date"
+            name="scadenza_bollo"
+            value={formData.scadenza_bollo}
+            onChange={handleChange}
+            className={errors.scadenza_bollo ? "input-error" : ""}
+          />
+          {errors.scadenza_bollo && (
+            <span className="field-error">{errors.scadenza_bollo}</span>
+          )}
+        </label>
+
+        <label>
+          Scadenza Assicurazione
+          <input
+            type="date"
+            name="scadenza_assicurazione"
+            value={formData.scadenza_assicurazione}
+            onChange={handleChange}
+            className={errors.scadenza_assicurazione ? "input-error" : ""}
+          />
+          {errors.scadenza_assicurazione && (
+            <span className="field-error">
+              {errors.scadenza_assicurazione}
+            </span>
+          )}
+        </label>
+
+        <label>
+          Scadenza Revisione
+          <input
+            type="date"
+            name="scadenza_revisione"
+            value={formData.scadenza_revisione}
+            onChange={handleChange}
+            className={errors.scadenza_revisione ? "input-error" : ""}
+          />
+          {errors.scadenza_revisione && (
+            <span className="field-error">{errors.scadenza_revisione}</span>
+          )}
+        </label>
+
+        <div className="form-actions">
+          <button type="submit">Conferma</button>
+          <button type="button" onClick={onClose}>
+            Annulla
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
