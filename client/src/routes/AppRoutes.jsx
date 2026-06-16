@@ -81,9 +81,7 @@ export default function AppRoutes() {
   };
 
   const handleDeleteVehicle = (vehicleId) => {
-    if (window.confirm("❌ Sei sicuro di voler eliminare questo veicolo?")) {
-      setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
-    }
+    setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
   };
 
   return (

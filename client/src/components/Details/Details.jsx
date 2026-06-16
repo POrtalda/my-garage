@@ -54,6 +54,7 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
   );
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     setRevision(vehicle.scadenza_revisione || "");
@@ -61,6 +62,7 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
     setInsurance(vehicle.scadenza_assicurazione || "");
     setErrors({});
     setSuccessMessage("");
+    setShowDeleteModal(false);
   }, [vehicle]);
 
   const handleFieldChange = (fieldName, value) => {
@@ -110,68 +112,112 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
     setSuccessMessage("✅ Scadenze aggiornate correttamente.");
   };
 
-  const handleDelete = () => {
-    if (window.confirm("❌ Sei sicuro di voler eliminare questo veicolo?")) {
-      onDelete(vehicle.id);
-      navigate("/");
-    }
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+  };
+
+  const confirmDelete = () => {
+    onDelete(vehicle.id);
+    navigate("/");
   };
 
   return (
-    <div className={isDarkMode ? "card-details dark" : "card-details light"}>
-      <h2>
-        {vehicle.brand} {vehicle.model}
-      </h2>
+    <>
+      <div className={isDarkMode ? "card-details dark" : "card-details light"}>
+        <h2>
+          {vehicle.brand} {vehicle.model}
+        </h2>
 
-      <img src={vehicle.img_url} alt={vehicle.model} />
+        <img src={vehicle.img_url} alt={vehicle.model} />
 
-      {successMessage && (
-        <p className="details-success-message">{successMessage}</p>
+        {successMessage && (
+          <p className="details-success-message">{successMessage}</p>
+        )}
+
+        <div className="input-group">
+          <label>Scadenza Revisione:</label>
+          <input
+            type="date"
+            value={formatDateForInput(revision)}
+            onChange={(e) => handleFieldChange("revision", e.target.value)}
+            className={errors.revision ? "input-error" : ""}
+          />
+          {errors.revision && (
+            <span className="field-error">{errors.revision}</span>
+          )}
+        </div>
+
+        <div className="input-group">
+          <label>Scadenza Bollo:</label>
+          <input
+            type="date"
+            value={formatDateForInput(bollo)}
+            onChange={(e) => handleFieldChange("bollo", e.target.value)}
+            className={errors.bollo ? "input-error" : ""}
+          />
+          {errors.bollo && <span className="field-error">{errors.bollo}</span>}
+        </div>
+
+        <div className="input-group">
+          <label>Scadenza Assicurazione:</label>
+          <input
+            type="date"
+            value={formatDateForInput(insurance)}
+            onChange={(e) => handleFieldChange("insurance", e.target.value)}
+            className={errors.insurance ? "input-error" : ""}
+          />
+          {errors.insurance && (
+            <span className="field-error">{errors.insurance}</span>
+          )}
+        </div>
+
+        <div className="details-actions">
+          <button onClick={handleRenew}>💾 Salva modifiche</button>
+          <button onClick={openDeleteModal} className="btn-delete">
+            🗑️ Elimina
+          </button>
+        </div>
+      </div>
+
+      {showDeleteModal && (
+        <div className="delete-modal-backdrop" role="presentation">
+          <div
+            className={isDarkMode ? "delete-modal dark" : "delete-modal light"}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title"
+          >
+            <div className="delete-modal-icon">🗑️</div>
+
+            <h3 id="delete-modal-title">Eliminare questo veicolo?</h3>
+
+            <p>
+              Stai per eliminare{" "}
+              <strong>
+                {vehicle.brand} {vehicle.model}
+              </strong>
+              . Questa azione non può essere annullata.
+            </p>
+
+            <div className="delete-modal-actions">
+              <button type="button" onClick={closeDeleteModal}>
+                Annulla
+              </button>
+              <button
+                type="button"
+                className="btn-delete"
+                onClick={confirmDelete}
+              >
+                Conferma eliminazione
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-
-      <div className="input-group">
-        <label>Scadenza Revisione:</label>
-        <input
-          type="date"
-          value={formatDateForInput(revision)}
-          onChange={(e) => handleFieldChange("revision", e.target.value)}
-          className={errors.revision ? "input-error" : ""}
-        />
-        {errors.revision && (
-          <span className="field-error">{errors.revision}</span>
-        )}
-      </div>
-
-      <div className="input-group">
-        <label>Scadenza Bollo:</label>
-        <input
-          type="date"
-          value={formatDateForInput(bollo)}
-          onChange={(e) => handleFieldChange("bollo", e.target.value)}
-          className={errors.bollo ? "input-error" : ""}
-        />
-        {errors.bollo && <span className="field-error">{errors.bollo}</span>}
-      </div>
-
-      <div className="input-group">
-        <label>Scadenza Assicurazione:</label>
-        <input
-          type="date"
-          value={formatDateForInput(insurance)}
-          onChange={(e) => handleFieldChange("insurance", e.target.value)}
-          className={errors.insurance ? "input-error" : ""}
-        />
-        {errors.insurance && (
-          <span className="field-error">{errors.insurance}</span>
-        )}
-      </div>
-
-      <div className="details-actions">
-        <button onClick={handleRenew}>💾 Salva modifiche</button>
-        <button onClick={handleDelete} className="btn-delete">
-          🗑️ Elimina
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
