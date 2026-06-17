@@ -49,3 +49,41 @@
   flex-wrap: wrap;
   margin-top: 1.5rem;
 }
+
+@media (max-width: 600px) {
+  .delete-modal-backdrop {
+    align-items: end;
+    padding: 0.75rem;
+  }
+
+  .delete-modal {
+    width: 100%;
+    padding: 1.35rem;
+    border-radius: 18px 18px 14px 14px;
+  }
+
+  .delete-modal-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .delete-modal h3 {
+    font-size: 1.2rem;
+  }
+
+  .delete-modal p {
+    font-size: 0.95rem;
+  }
+
+  .delete-modal-actions {
+    flex-direction: column-reverse;
+    gap: 0.65rem;
+    margin-top: 1.25rem;
+  }
+
+  .delete-modal-actions button {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+  }
+}
