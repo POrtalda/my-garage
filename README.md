@@ -2,7 +2,7 @@
 
 **My Garage** è una web app frontend sviluppata con **React + Vite** per gestire veicoli e relative scadenze, come bollo, assicurazione e revisione.
 
-Il progetto nasce come applicazione portfolio e ha l’obiettivo di mostrare una gestione completa lato frontend: routing, componenti riutilizzabili, persistenza locale, gestione tema, feedback utente e logica di stato.
+Il progetto nasce come applicazione portfolio e ha l’obiettivo di mostrare una gestione completa lato frontend: routing, componenti riutilizzabili, persistenza locale, gestione tema, feedback utente, validazione dei form, responsive design e logica di stato.
 
 ---
 
@@ -14,8 +14,7 @@ Puoi provare la web app qui:
 
 > Nota: la demo è frontend-only. I dati iniziali vengono caricati da una JSON API esterna, mentre le modifiche effettuate vengono salvate nel `localStorage` del browser.
 
----
-
+La demo è pubblicata su **Netlify** e include il file `_redirects` per supportare il refresh diretto delle rotte gestite da React Router.
 
 ---
 
@@ -32,6 +31,7 @@ Puoi provare la web app qui:
 ### Conferma eliminazione
 
 ![Modale di conferma eliminazione veicolo](docs/images/modale-my-garage.jpg)
+
 ---
 
 ## 🚗 Funzionalità principali
@@ -50,6 +50,8 @@ Puoi provare la web app qui:
 * Supporto Light/Dark mode
 * Persistenza dati in `localStorage`
 * Caricamento iniziale dati da JSON API esterna
+* Layout responsive ottimizzato per smartphone
+* Supporto refresh diretto delle rotte su Netlify
 
 ---
 
@@ -63,6 +65,7 @@ Puoi provare la web app qui:
 * CSS modulare per componenti
 * localStorage
 * JSON API esterna
+* Netlify
 
 ---
 
@@ -71,8 +74,15 @@ Puoi provare la web app qui:
 ```text
 my-garage/
 ├─ README.md
+├─ docs/
+│  └─ images/
+│     ├─ details-my-garage.png
+│     ├─ home-my-garage.png
+│     └─ modale-my-garage.jpg
 └─ client/
    ├─ package.json
+   ├─ public/
+   │  └─ _redirects
    └─ src/
       ├─ main.jsx
       ├─ App.jsx
@@ -86,6 +96,7 @@ my-garage/
       └─ components/
          ├─ DashboardSummary/
          ├─ DarkLight/
+         ├─ DeleteConfirmationModal/
          ├─ Details/
          ├─ EmptyState/
          ├─ Menu/
@@ -119,6 +130,7 @@ Operazioni gestite:
 * modifica scadenze
 * eliminazione veicolo
 * mantenimento preferenza tema chiaro/scuro
+* persistenza delle modifiche dopo il refresh
 
 ---
 
@@ -133,6 +145,10 @@ Il progetto include diversi miglioramenti pensati per rendere l’esperienza pi�
 * validazione nella pagina dettaglio
 * messaggio di successo dopo aggiornamento scadenze
 * modale personalizzata per confermare l’eliminazione
+* card veicolo responsive
+* dashboard riepilogativa ottimizzata su mobile
+* layout mobile migliorato per form, dettaglio veicolo e modale delete
+* semaforo stato veicolo ricostruito in CSS per maggiore stabilità su smartphone
 
 ---
 
@@ -143,25 +159,37 @@ Durante lo sviluppo vengono eseguiti:
 ```bash
 npm run lint
 npm run build
-```markdown
+```
+
+Per le modifiche solo documentali viene verificato anche:
+
+```bash
+git diff --check
+```
+
 ---
 
 ## ✅ Test manuale consigliato
 
 Dopo ogni modifica importante, è consigliato verificare manualmente i principali flussi dell’app:
 
-- aprire la Home e controllare la dashboard riepilogativa
-- verificare la lista veicoli
-- aprire il dettaglio di un veicolo
-- modificare le scadenze e salvare
-- verificare il messaggio di successo
-- provare a salvare scadenze vuote e controllare i messaggi di errore
-- aggiungere un nuovo veicolo
-- provare ad aggiungere un veicolo incompleto e controllare la validazione
-- aprire i filtri `/expired` e `/expiring`
-- eliminare un veicolo tramite modale di conferma
-- aggiornare la pagina e verificare la persistenza in `localStorage`
-- cambiare tema chiaro/scuro e verificare che la preferenza resti salvata
+* aprire la Home e controllare la dashboard riepilogativa
+* verificare la lista veicoli
+* aprire il dettaglio di un veicolo
+* modificare le scadenze e salvare
+* verificare il messaggio di successo
+* provare a salvare scadenze vuote e controllare i messaggi di errore
+* aggiungere un nuovo veicolo
+* provare ad aggiungere un veicolo incompleto e controllare la validazione
+* aprire i filtri `/expired` e `/expiring`
+* eliminare un veicolo tramite modale di conferma
+* aggiornare la pagina e verificare la persistenza in `localStorage`
+* cambiare tema chiaro/scuro e verificare che la preferenza resti salvata
+* verificare il refresh diretto delle rotte Netlify:
+
+  * `/expired`
+  * `/expiring`
+  * `/details/:id`
 
 ---
 
@@ -199,6 +227,17 @@ npm run build
 Il progetto è attualmente una web app **frontend-only**.
 
 È pensato come progetto portfolio e come base evolutiva per una futura versione full stack.
+
+La parte frontend include già:
+
+* routing con React Router
+* gestione stato e dati lato client
+* persistenza in `localStorage`
+* validazione form
+* feedback utente
+* supporto Light/Dark mode
+* responsive design
+* gestione refresh rotte su Netlify
 
 Possibili sviluppi futuri:
 
