@@ -16,6 +16,24 @@ Puoi provare la web app qui:
 
 ---
 
+
+---
+
+## 📸 Screenshot
+
+### Home e dashboard
+
+![Home e dashboard di My Garage](docs/images/home-my-garage.png)
+
+### Dettaglio veicolo
+
+![Dettaglio veicolo di My Garage](docs/images/details-my-garage.png)
+
+### Conferma eliminazione
+
+![Modale di conferma eliminazione veicolo](docs/images/modale-my-garage.jpg)
+---
+
 ## 🚗 Funzionalità principali
 
 * Visualizzazione lista veicoli
