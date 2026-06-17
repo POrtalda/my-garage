@@ -3,28 +3,7 @@ import { useNavigate } from "react-router";
 import "./Details.css";
 import ThemeContext from "../../context/ThemeContext";
 import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmationModal";
-
-function parseDate(dateString) {
-  if (!dateString) return null;
-  if (dateString.includes("-")) return new Date(dateString);
-
-  const parts = dateString.split(/[./-]/).map((p) => parseInt(p, 10));
-  if (parts.length !== 3) return null;
-
-  const [day, month, year] = parts;
-  return new Date(year, month - 1, day);
-}
-
-function formatDateForInput(dateString) {
-  const date = parseDate(dateString);
-  if (!date) return "";
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
+import { formatDateForInput } from "../../utils/vehicleDates";
 
 function validateDetailsForm({ revision, bollo, insurance }) {
   const newErrors = {};
