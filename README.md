@@ -143,7 +143,25 @@ Durante lo sviluppo vengono eseguiti:
 ```bash
 npm run lint
 npm run build
-```
+```markdown
+---
+
+## ✅ Test manuale consigliato
+
+Dopo ogni modifica importante, è consigliato verificare manualmente i principali flussi dell’app:
+
+- aprire la Home e controllare la dashboard riepilogativa
+- verificare la lista veicoli
+- aprire il dettaglio di un veicolo
+- modificare le scadenze e salvare
+- verificare il messaggio di successo
+- provare a salvare scadenze vuote e controllare i messaggi di errore
+- aggiungere un nuovo veicolo
+- provare ad aggiungere un veicolo incompleto e controllare la validazione
+- aprire i filtri `/expired` e `/expiring`
+- eliminare un veicolo tramite modale di conferma
+- aggiornare la pagina e verificare la persistenza in `localStorage`
+- cambiare tema chiaro/scuro e verificare che la preferenza resti salvata
 
 ---
 
