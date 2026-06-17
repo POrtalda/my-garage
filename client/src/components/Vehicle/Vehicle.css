@@ -9,12 +9,12 @@
   max-width: 300px;
   padding: 1rem;
   transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .card-vehicle:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
 }
 
 .card-vehicle_light {
@@ -29,7 +29,8 @@
   border: 1px solid #444;
 }
 
-.card-vehicle-info h2, .card-vehicle-info h3 {
+.card-vehicle-info h2,
+.card-vehicle-info h3 {
   margin: 0;
   text-align: center;
 }
@@ -50,22 +51,110 @@
   border-radius: 8px;
 }
 
-.traffic-light-icon {
-  width: 100px;
-  height: 100px;
-  color: #0c0c0c;
+.traffic-light {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 42px;
+  padding: 8px 6px;
+  margin-top: 0.75rem;
+  border-radius: 12px;
+  background-color: #515050;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
 }
 
-.dot {
-  position: absolute;
-  width: 20px;
-  height: 20px;
+.traffic-dot {
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
-  opacity: 1;
-  left: 50%;
-  transform: translateX(-50%);
+  background-color: #2f2f2f;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-.dot.red { background-color: #e53935; top: 165px; }
-.dot.orange { background-color: #fb8c00; top: 190px; }
-.dot.green { background-color: #43a047; top: 215px; }
+.traffic-dot-red.active {
+  background-color: #e53935;
+  box-shadow: 0 0 8px rgba(229, 57, 53, 0.7);
+}
+
+.traffic-dot-orange.active {
+  background-color: #fb8c00;
+  box-shadow: 0 0 8px rgba(251, 140, 0, 0.7);
+}
+
+.traffic-dot-green.active {
+  background-color: #43a047;
+  box-shadow: 0 0 8px rgba(67, 160, 71, 0.7);
+}
+
+@media (max-width: 600px) {
+  .card-vehicle {
+    width: calc(100% - 2rem);
+    max-width: none;
+    margin: 0 auto 1rem;
+    padding: 1.15rem;
+    border-radius: 16px;
+    gap: 0.75rem;
+  }
+
+  .card-vehicle:hover {
+    transform: none;
+  }
+
+  .card-vehicle-info {
+    width: 100%;
+  }
+
+  .card-vehicle-info h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  .card-vehicle-info h3 {
+    font-size: 1rem;
+    line-height: 1.35;
+    opacity: 0.9;
+  }
+
+  .card-traffic-img-light {
+    width: 100%;
+    margin-top: 0.35rem;
+  }
+
+  .card-traffic-img-light img {
+    width: 100%;
+    max-width: 260px;
+    height: 170px;
+    object-fit: contain;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 380px) {
+  .card-vehicle {
+    width: calc(100% - 1rem);
+    padding: 1rem;
+  }
+
+  .card-traffic-img-light img {
+    height: 150px;
+  }
+
+  .dot {
+    width: 13px;
+    height: 13px;
+  }
+
+  .dot.red {
+    top: 170px;
+  }
+
+  .dot.orange {
+    top: 190px;
+  }
+
+  .dot.green {
+    top: 210px;
+  }
+}
