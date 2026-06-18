@@ -28,7 +28,6 @@ export default function AppRoutes() {
       const withFlags = apiVehicles.map((v) => addExpiryFlags(v));
 
       setVehicles(withFlags);
-      localStorage.setItem("vehicles", JSON.stringify(withFlags));
     } catch (err) {
       console.error("Errore fetch:", err);
 
@@ -50,12 +49,6 @@ export default function AppRoutes() {
   useEffect(() => {
     fetchVehicles();
   }, [fetchVehicles]);
-
-  useEffect(() => {
-    if (vehicles.length > 0) {
-      localStorage.setItem("vehicles", JSON.stringify(vehicles));
-    }
-  }, [vehicles]);
 
   useEffect(() => {
     const lsDark = JSON.parse(localStorage.getItem("vehicles-dark-mode"));
