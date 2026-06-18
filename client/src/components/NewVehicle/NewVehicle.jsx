@@ -10,7 +10,7 @@ const initialFormData = {
   scadenza_revisione: "",
 };
 
-const maxImageSizeInBytes = 2 * 1024 * 1024;
+const maxImageSizeInBytes = 5 * 1024 * 1024;
 
 function validateVehicleForm(formData) {
   const newErrors = {};
@@ -72,7 +72,7 @@ export default function NewVehicle({ onAdd, onClose }) {
     if (file.size > maxImageSizeInBytes) {
       setErrors({
         ...errors,
-        img_url: "L'immagine è troppo grande. Usa un file massimo di 2 MB.",
+        img_url: "L'immagine è troppo grande. Usa un file massimo di 5 MB.",
       });
       return;
     }
