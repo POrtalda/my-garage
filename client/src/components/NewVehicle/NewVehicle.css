@@ -193,3 +193,18 @@
     width: 100%;
   }
 }
+
+.image-preview {
+  margin-top: 8px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  max-width: 260px;
+}
+
+.image-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}

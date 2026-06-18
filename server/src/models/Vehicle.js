@@ -18,6 +18,10 @@ const vehicleSchema = new mongoose.Schema(
       trim: true,
       uppercase: true,
     },
+    imgUrl: {
+      type: String,
+      default: "",
+    },
     insuranceExpiry: {
       type: Date,
       required: [true, "La scadenza assicurazione è obbligatoria"],

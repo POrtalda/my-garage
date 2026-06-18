@@ -10,6 +10,8 @@ const initialFormData = {
   scadenza_revisione: "",
 };
 
+const maxImageSizeInBytes = 2 * 1024 * 1024;
+
 function validateVehicleForm(formData) {
   const newErrors = {};
 
@@ -40,6 +42,7 @@ function validateVehicleForm(formData) {
 export default function NewVehicle({ onAdd, onClose }) {
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
+  const [imagePreview, setImagePreview] = useState("");
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -49,6 +52,49 @@ export default function NewVehicle({ onAdd, onClose }) {
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
+  }
+
+  function handleImageFileChange(e) {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setErrors({
+        ...errors,
+        img_url: "Seleziona un file immagine valido.",
+      });
+      return;
+    }
+
+    if (file.size > maxImageSizeInBytes) {
+      setErrors({
+        ...errors,
+        img_url: "L'immagine è troppo grande. Usa un file massimo di 2 MB.",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const imageDataUrl = reader.result;
+
+      setFormData((prev) => ({
+        ...prev,
+        img_url: imageDataUrl,
+      }));
+
+      setImagePreview(imageDataUrl);
+
+      if (errors.img_url) {
+        setErrors((prev) => ({ ...prev, img_url: "" }));
+      }
+    };
+
+    reader.readAsDataURL(file);
   }
 
   function handleSubmit(e) {
@@ -102,15 +148,22 @@ export default function NewVehicle({ onAdd, onClose }) {
         </label>
 
         <label>
-          URL immagine
+          Carica immagine dal dispositivo
           <input
-            type="url"
-            name="img_url"
-            value={formData.img_url}
-            onChange={handleChange}
-            placeholder="Opzionale"
+            type="file"
+            accept="image/*"
+            onChange={handleImageFileChange}
           />
+          {errors.img_url && (
+            <span className="field-error">{errors.img_url}</span>
+          )}
         </label>
+
+        {imagePreview && (
+          <div className="image-preview">
+            <img src={imagePreview} alt="Anteprima veicolo" />
+          </div>
+        )}
 
         <label>
           Scadenza Bollo
