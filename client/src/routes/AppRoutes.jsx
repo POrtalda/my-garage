@@ -6,8 +6,12 @@ import Menu from "../components/Menu/Menu";
 import { useCallback, useEffect, useState } from "react";
 import ThemeContext from "../context/ThemeContext";
 import Details from "../components/Details/Details";
-
-const URL_API = "https://portalda.github.io/fake-api-my-garage/my-garage.json";
+import {
+  createVehicle,
+  deleteVehicle,
+  getVehicles,
+  updateVehicle,
+} from "../services/vehiclesApi";
 
 export default function AppRoutes() {
   const [vehicles, setVehicles] = useState([]);
@@ -15,41 +19,36 @@ export default function AppRoutes() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchVehicles = useCallback(() => {
+  const fetchVehicles = useCallback(async () => {
     setIsLoading(true);
     setError("");
 
-    fetch(URL_API)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Errore nel caricamento dei veicoli");
-        }
+    try {
+      const apiVehicles = await getVehicles();
+      const withFlags = apiVehicles.map((v) => addExpiryFlags(v));
 
-        return res.json();
-      })
-      .then((data) => {
-        const withFlags = data.map((v) => addExpiryFlags(v));
-        setVehicles(withFlags);
-        localStorage.setItem("vehicles", JSON.stringify(withFlags));
-      })
-      .catch((err) => {
-        console.error("Errore fetch:", err);
-        setError("Non riesco a caricare i dati iniziali. Riprova più tardi.");
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      setVehicles(withFlags);
+      localStorage.setItem("vehicles", JSON.stringify(withFlags));
+    } catch (err) {
+      console.error("Errore fetch:", err);
+
+      const storedVehicles = localStorage.getItem("vehicles");
+
+      if (storedVehicles) {
+        setVehicles(JSON.parse(storedVehicles));
+        setError(
+          "Backend non raggiungibile. Sto mostrando i dati salvati nel browser."
+        );
+      } else {
+        setError("Non riesco a caricare i veicoli. Riprova più tardi.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    const storedVehicles = localStorage.getItem("vehicles");
-
-    if (storedVehicles) {
-      setVehicles(JSON.parse(storedVehicles));
-      setIsLoading(false);
-    } else {
-      fetchVehicles();
-    }
+    fetchVehicles();
   }, [fetchVehicles]);
 
   useEffect(() => {
@@ -68,20 +67,47 @@ export default function AppRoutes() {
     document.body.className = isDarkMode ? "dark" : "light";
   }, [isDarkMode]);
 
-  const handleAddVehicle = (newVehicle) => {
-    const vehicleWithFlags = addExpiryFlags({ ...newVehicle, id: Date.now() });
-    setVehicles((prev) => [...prev, vehicleWithFlags]);
+  const handleAddVehicle = async (newVehicle) => {
+    try {
+      const createdVehicle = await createVehicle(newVehicle);
+      const vehicleWithFlags = addExpiryFlags(createdVehicle);
+
+      setVehicles((prev) => [...prev, vehicleWithFlags]);
+      setError("");
+    } catch (err) {
+      console.error("Errore creazione veicolo:", err);
+      setError("Non riesco ad aggiungere il veicolo. Riprova più tardi.");
+    }
   };
 
-  const handleUpdateVehicle = (updatedVehicle) => {
-    const vehicleWithFlags = addExpiryFlags(updatedVehicle);
-    setVehicles((prev) =>
-      prev.map((v) => (v.id === vehicleWithFlags.id ? vehicleWithFlags : v))
-    );
+  const handleUpdateVehicle = async (updatedVehicle) => {
+    try {
+      const savedVehicle = await updateVehicle(
+        updatedVehicle.id,
+        updatedVehicle
+      );
+      const vehicleWithFlags = addExpiryFlags(savedVehicle);
+
+      setVehicles((prev) =>
+        prev.map((v) => (v.id === vehicleWithFlags.id ? vehicleWithFlags : v))
+      );
+      setError("");
+    } catch (err) {
+      console.error("Errore aggiornamento veicolo:", err);
+      setError("Non riesco ad aggiornare il veicolo. Riprova più tardi.");
+    }
   };
 
-  const handleDeleteVehicle = (vehicleId) => {
-    setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
+  const handleDeleteVehicle = async (vehicleId) => {
+    try {
+      await deleteVehicle(vehicleId);
+
+      setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
+      setError("");
+    } catch (err) {
+      console.error("Errore eliminazione veicolo:", err);
+      setError("Non riesco a eliminare il veicolo. Riprova più tardi.");
+    }
   };
 
   return (
