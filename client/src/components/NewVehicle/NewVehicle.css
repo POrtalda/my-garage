@@ -208,3 +208,11 @@
   height: auto;
   object-fit: cover;
 }
+
+.form-error {
+  margin: 0.75rem 0 0;
+  color: #dc3545;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
