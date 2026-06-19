@@ -6,6 +6,7 @@ import Menu from "../components/Menu/Menu";
 import { useCallback, useEffect, useState } from "react";
 import ThemeContext from "../context/ThemeContext";
 import Details from "../components/Details/Details";
+import StateMessage from "../components/StateMessage/StateMessage";
 import {
   createVehicle,
   deleteVehicle,
@@ -201,6 +202,7 @@ export default function AppRoutes() {
               element={
                 <DetailsWrapper
                   vehicles={vehicles}
+                  isLoading={isLoading}
                   onUpdate={handleUpdateVehicle}
                   onDelete={handleDeleteVehicle}
                 />
@@ -218,16 +220,38 @@ export default function AppRoutes() {
   );
 }
 
-function DetailsWrapper({ vehicles, onUpdate, onDelete }) {
+function DetailsWrapper({ vehicles, isLoading, onUpdate, onDelete }) {
   const { id } = useParams();
-
   const vehicle = vehicles.find(
-    (item) => getVehicleId(item)?.toString() === id.toString()
+    (currentVehicle) => getVehicleId(currentVehicle)?.toString() === id
   );
 
-  return vehicle ? (
-    <Details vehicle={vehicle} onUpdate={onUpdate} onDelete={onDelete} />
-  ) : (
-    <p style={{ padding: "20px" }}>❌ Veicolo non trovato</p>
+  if (isLoading) {
+    return (
+      <StateMessage
+        icon="⏳"
+        title="Caricamento dettaglio veicolo..."
+        description="Sto recuperando le informazioni del veicolo."
+      />
+    );
+  }
+
+  if (!vehicle) {
+    return (
+      <StateMessage
+        icon="🚗"
+        title="Veicolo non trovato"
+        description="Il veicolo richiesto non esiste o non è più disponibile."
+        type="error"
+      />
+    );
+  }
+
+  return (
+    <Details
+      vehicle={vehicle}
+      onUpdate={onUpdate}
+      onDelete={onDelete}
+    />
   );
 }
