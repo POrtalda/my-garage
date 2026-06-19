@@ -23,6 +23,66 @@
   margin: 0 auto;
 }
 
+.details-image-placeholder {
+  width: 100%;
+  max-width: 250px;
+  min-height: 160px;
+  border: 2px dashed #c8d0d8;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  color: #6c757d;
+  background: rgba(108, 117, 125, 0.08);
+  margin: 0 auto;
+}
+
+.details-image-placeholder span {
+  font-size: 2rem;
+}
+
+.details-image-placeholder p {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.details-image-upload {
+  gap: 0.45rem;
+}
+
+.details-image-upload small {
+  width: 80%;
+  max-width: 250px;
+  color: #6c757d;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.details-image-upload input[type="file"] {
+  cursor: pointer;
+}
+
+.details-remove-image {
+  width: 80%;
+  max-width: 250px;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #dc3545;
+  background: transparent;
+  color: #dc3545;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.details-remove-image:hover {
+  background: rgba(220, 53, 69, 0.1);
+  transform: translateY(-1px);
+}
+
 .input-group {
   width: 100%;
   display: flex;
@@ -54,6 +114,25 @@ body.dark .input-group input {
   background-color: #3c3c50;
   color: #f5f5f5;
   border: 1px solid #555;
+}
+
+body.dark .details-image-placeholder {
+  border-color: #555;
+  color: #d0d0d0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body.dark .details-image-upload small {
+  color: #d0d0d0;
+}
+
+body.dark .details-remove-image {
+  border-color: #ff8a80;
+  color: #ff8a80;
+}
+
+body.dark .details-remove-image:hover {
+  background: rgba(255, 138, 128, 0.12);
 }
 
 /* CONTENITORE PULSANTI */
@@ -137,6 +216,15 @@ body.dark .details-actions .btn-delete:hover {
   font-weight: 600;
 }
 
+.details-saving-message {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  color: #0d6efd;
+  background: rgba(13, 110, 253, 0.12);
+  font-weight: 600;
+}
+
 @media (max-width: 600px) {
   .card-details {
     width: calc(100% - 2rem);
@@ -153,47 +241,67 @@ body.dark .details-actions .btn-delete:hover {
     object-fit: contain;
   }
 
-  .input-group {
+  .details-image-placeholder {
+  max-width: 100%;
+  min-height: 150px;
+}
+
+.details-image-upload small,
+.details-remove-image {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.input-group {
     align-items: stretch;
     text-align: left;
     margin-bottom: 0.95rem;
-  }
+}
 
-  .input-group label {
+.input-group label {
     margin-bottom: 0.4rem;
     font-size: 0.95rem;
-  }
+}
 
-  .input-group input {
+.input-group input {
     width: 100%;
     max-width: none;
     box-sizing: border-box;
     padding: 0.75rem 0.85rem;
     font-size: 1rem;
-  }
+}
 
-  .details-actions {
+.details-actions {
     flex-direction: column;
     gap: 0.75rem;
     margin-top: 1rem;
-  }
+}
 
-  .details-actions button {
+.details-actions button {
     width: 100%;
     padding: 0.8rem 1rem;
     font-size: 1rem;
-  }
+}
 
-  .field-error {
+.field-error {
     font-size: 0.82rem;
-  }
+}
 
-  .details-success-message {
+.details-success-message {
     width: 100%;
     box-sizing: border-box;
     margin: 0.75rem 0;
     font-size: 0.95rem;
-  }
+}
+
+.details-saving-message {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.75rem 0;
+  font-size: 0.95rem;
+}
 }
 
 @media (max-width: 380px) {
@@ -205,4 +313,8 @@ body.dark .details-actions .btn-delete:hover {
   .card-details img {
     max-height: 180px;
   }
+
+  .details-image-placeholder {
+  min-height: 130px;
+}
 }

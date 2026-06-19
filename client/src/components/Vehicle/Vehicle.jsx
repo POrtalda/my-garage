@@ -36,7 +36,13 @@ export default function Vehicle({ vehicle }) {
         </div>
 
         <div className="card-traffic-img-light">
-          <img src={vehicle.img_url} alt={vehicle.model} />
+          {vehicle.img_url ? (
+            <img src={vehicle.img_url} alt={`${vehicle.brand} ${vehicle.model}`} />
+          ) : (
+            <div className="vehicle-image-placeholder">
+              <span>🚗</span>
+            </div>
+          )}
 
           <div className="traffic-light" aria-label={`Stato veicolo: ${vehicleStatus}`}>
             <span className={`traffic-dot traffic-dot-red ${vehicleStatus === 'red' ? 'active' : ''}`}></span>

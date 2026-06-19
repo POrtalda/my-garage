@@ -5,6 +5,8 @@ import ThemeContext from "../../context/ThemeContext";
 import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmationModal";
 import { formatDateForInput } from "../../utils/vehicleDates";
 
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+
 function validateDetailsForm({ revision, bollo, insurance }) {
   const newErrors = {};
 
@@ -23,6 +25,16 @@ function validateDetailsForm({ revision, bollo, insurance }) {
   return newErrors;
 }
 
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Errore durante la lettura del file."));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function Details({ vehicle, onUpdate, onDelete }) {
   const { isDarkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
@@ -32,17 +44,23 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
   const [insurance, setInsurance] = useState(
     vehicle.scadenza_assicurazione || ""
   );
+  const [imagePreview, setImagePreview] = useState(vehicle.img_url || "");
   const [errors, setErrors] = useState({});
+  const [imageError, setImageError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setRevision(vehicle.scadenza_revisione || "");
     setBollo(vehicle.scadenza_bollo || "");
     setInsurance(vehicle.scadenza_assicurazione || "");
+    setImagePreview(vehicle.img_url || "");
     setErrors({});
+    setImageError("");
     setSuccessMessage("");
     setShowDeleteModal(false);
+    setIsSaving(false);
   }, [vehicle]);
 
   const handleFieldChange = (fieldName, value) => {
@@ -68,6 +86,43 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
     }
   };
 
+  const handleImageChange = async (event) => {
+    const file = event.target.files?.[0];
+
+    setSuccessMessage("");
+    setImageError("");
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setImageError("Seleziona un file immagine valido.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      setImageError("L'immagine non può superare i 5 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      const imageDataUrl = await readFileAsDataUrl(file);
+      setImagePreview(imageDataUrl);
+    } catch {
+      setImageError("Non è stato possibile caricare l'immagine.");
+      event.target.value = "";
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview("");
+    setImageError("");
+    setSuccessMessage("");
+  };
+
   const handleRenew = () => {
     const validationErrors = validateDetailsForm({
       revision,
@@ -81,15 +136,26 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
       return;
     }
 
+    if (imageError) {
+      setSuccessMessage("");
+      return;
+    }
+
     const updatedVehicle = {
       ...vehicle,
+      img_url: imagePreview,
       scadenza_revisione: revision,
       scadenza_bollo: bollo,
       scadenza_assicurazione: insurance,
     };
 
-    onUpdate(updatedVehicle);
-    setSuccessMessage("✅ Scadenze aggiornate correttamente.");
+    setIsSaving(true);
+
+    onUpdate(updatedVehicle).catch(() => {
+      console.error("Errore durante il salvataggio delle modifiche.");
+    });
+
+    navigate("/", { replace: true });
   };
 
   const openDeleteModal = () => {
@@ -112,11 +178,43 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
           {vehicle.brand} {vehicle.model}
         </h2>
 
-        <img src={vehicle.img_url} alt={vehicle.model} />
+        {imagePreview ? (
+          <img src={imagePreview} alt={vehicle.model} />
+        ) : (
+          <div className="details-image-placeholder">
+            <span>🚗</span>
+            <p>Nessuna foto disponibile</p>
+          </div>
+        )}
+
+        <div className="input-group details-image-upload">
+          <label htmlFor="vehicle-image">Foto veicolo:</label>
+          <input
+            id="vehicle-image"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+          <small>Puoi caricare o sostituire la foto. Dimensione massima: 5 MB.</small>
+
+          {imagePreview && (
+            <button
+              type="button"
+              className="details-remove-image"
+              onClick={handleRemoveImage}
+            >
+              Rimuovi foto
+            </button>
+          )}
+
+          {imageError && <span className="field-error">{imageError}</span>}
+        </div>
 
         {successMessage && (
           <p className="details-success-message">{successMessage}</p>
         )}
+
+        {errors.submit && <p className="field-error">{errors.submit}</p>}
 
         <div className="input-group">
           <label>Scadenza Revisione:</label>
@@ -156,7 +254,9 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
         </div>
 
         <div className="details-actions">
-          <button onClick={handleRenew}>💾 Salva modifiche</button>
+          <button onClick={handleRenew} disabled={isSaving}>
+            {isSaving ? "Salvataggio..." : "💾 Salva modifiche"}
+          </button>
           <button onClick={openDeleteModal} className="btn-delete">
             🗑️ Elimina
           </button>

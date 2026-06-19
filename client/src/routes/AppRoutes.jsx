@@ -13,6 +13,14 @@ import {
   updateVehicle,
 } from "../services/vehiclesApi";
 
+function getVehicleId(vehicle) {
+  return vehicle.id || vehicle._id;
+}
+
+function isSameVehicle(vehicleA, vehicleB) {
+  return getVehicleId(vehicleA)?.toString() === getVehicleId(vehicleB)?.toString();
+}
+
 export default function AppRoutes() {
   const [vehicles, setVehicles] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -25,7 +33,7 @@ export default function AppRoutes() {
 
     try {
       const apiVehicles = await getVehicles();
-      const withFlags = apiVehicles.map((v) => addExpiryFlags(v));
+      const withFlags = apiVehicles.map((vehicle) => addExpiryFlags(vehicle));
 
       setVehicles(withFlags);
     } catch (err) {
@@ -65,29 +73,46 @@ export default function AppRoutes() {
       const createdVehicle = await createVehicle(newVehicle);
       const vehicleWithFlags = addExpiryFlags(createdVehicle);
 
-      setVehicles((prev) => [...prev, vehicleWithFlags]);
+      setVehicles((prevVehicles) => [...prevVehicles, vehicleWithFlags]);
       setError("");
     } catch (err) {
       console.error("Errore creazione veicolo:", err);
       setError("Non riesco ad aggiungere il veicolo. Riprova più tardi.");
+      throw err;
     }
   };
 
   const handleUpdateVehicle = async (updatedVehicle) => {
+    const optimisticVehicle = addExpiryFlags(updatedVehicle);
+
+    setVehicles((prevVehicles) =>
+      prevVehicles.map((vehicle) =>
+        isSameVehicle(vehicle, optimisticVehicle) ? optimisticVehicle : vehicle
+      )
+    );
+
     try {
       const savedVehicle = await updateVehicle(
-        updatedVehicle.id,
+        getVehicleId(updatedVehicle),
         updatedVehicle
       );
+
       const vehicleWithFlags = addExpiryFlags(savedVehicle);
 
-      setVehicles((prev) =>
-        prev.map((v) => (v.id === vehicleWithFlags.id ? vehicleWithFlags : v))
+      setVehicles((prevVehicles) =>
+        prevVehicles.map((vehicle) =>
+          isSameVehicle(vehicle, vehicleWithFlags) ? vehicleWithFlags : vehicle
+        )
       );
+
       setError("");
+      return vehicleWithFlags;
     } catch (err) {
       console.error("Errore aggiornamento veicolo:", err);
       setError("Non riesco ad aggiornare il veicolo. Riprova più tardi.");
+
+      await fetchVehicles();
+      throw err;
     }
   };
 
@@ -95,11 +120,17 @@ export default function AppRoutes() {
     try {
       await deleteVehicle(vehicleId);
 
-      setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
+      setVehicles((prevVehicles) =>
+        prevVehicles.filter(
+          (vehicle) => getVehicleId(vehicle)?.toString() !== vehicleId.toString()
+        )
+      );
+
       setError("");
     } catch (err) {
       console.error("Errore eliminazione veicolo:", err);
       setError("Non riesco a eliminare il veicolo. Riprova più tardi.");
+      throw err;
     }
   };
 
@@ -107,6 +138,7 @@ export default function AppRoutes() {
     <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode }}>
       <BrowserRouter>
         <Menu title="My Garage" onAddVehicle={handleAddVehicle} />
+
         <div className="main-content">
           <Routes>
             <Route
@@ -128,10 +160,10 @@ export default function AppRoutes() {
               element={
                 <App
                   vehicles={vehicles.filter(
-                    (v) =>
-                      v.expired_car_tax ||
-                      v.expired_insurance ||
-                      v.expired_revision
+                    (vehicle) =>
+                      vehicle.expired_car_tax ||
+                      vehicle.expired_insurance ||
+                      vehicle.expired_revision
                   )}
                   isLoading={isLoading}
                   error={error}
@@ -146,10 +178,10 @@ export default function AppRoutes() {
               element={
                 <App
                   vehicles={vehicles.filter(
-                    (v) =>
-                      v.expiring_car_tax ||
-                      v.expiring_insurance ||
-                      v.expiring_revision
+                    (vehicle) =>
+                      vehicle.expiring_car_tax ||
+                      vehicle.expiring_insurance ||
+                      vehicle.expiring_revision
                   )}
                   isLoading={isLoading}
                   error={error}
@@ -183,7 +215,10 @@ export default function AppRoutes() {
 
 function DetailsWrapper({ vehicles, onUpdate, onDelete }) {
   const { id } = useParams();
-  const vehicle = vehicles.find((v) => v.id.toString() === id.toString());
+
+  const vehicle = vehicles.find(
+    (item) => getVehicleId(item)?.toString() === id.toString()
+  );
 
   return vehicle ? (
     <Details vehicle={vehicle} onUpdate={onUpdate} onDelete={onDelete} />
