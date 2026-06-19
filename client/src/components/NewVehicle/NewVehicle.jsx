@@ -43,11 +43,14 @@ export default function NewVehicle({ onAdd, onClose }) {
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   function handleChange(e) {
     const { name, value } = e.target;
 
     setFormData({ ...formData, [name]: value });
+    setSubmitError("");
 
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
@@ -97,25 +100,37 @@ export default function NewVehicle({ onAdd, onClose }) {
     reader.readAsDataURL(file);
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const validationErrors = validateVehicleForm(formData);
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      setSubmitError("");
       return;
     }
 
-    onAdd({
-      ...formData,
-      brand: formData.brand.trim(),
-      model: formData.model.trim(),
-      img_url: formData.img_url.trim(),
-      id: Date.now(),
-    });
+    setIsSubmitting(true);
+    setSubmitError("");
 
-    onClose();
+    try {
+      await onAdd({
+        ...formData,
+        brand: formData.brand.trim(),
+        model: formData.model.trim(),
+        img_url: formData.img_url.trim(),
+        id: Date.now(),
+      });
+
+      onClose();
+    } catch {
+      setSubmitError(
+        "Non è stato possibile aggiungere il veicolo. Controlla la connessione e riprova."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -209,9 +224,12 @@ export default function NewVehicle({ onAdd, onClose }) {
           )}
         </label>
 
+        {submitError && <p className="form-error">{submitError}</p>}
         <div className="form-actions">
-          <button type="submit">Conferma</button>
-          <button type="button" onClick={onClose}>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Salvataggio..." : "Conferma"}
+          </button>
+          <button type="button" onClick={onClose} disabled={isSubmitting}>
             Annulla
           </button>
         </div>

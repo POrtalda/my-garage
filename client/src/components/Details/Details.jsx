@@ -123,7 +123,7 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
     setSuccessMessage("");
   };
 
-  const handleRenew = () => {
+  const handleRenew = async () => {
     const validationErrors = validateDetailsForm({
       revision,
       bollo,
@@ -150,12 +150,20 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
     };
 
     setIsSaving(true);
+    setErrors((prevErrors) => ({ ...prevErrors, submit: "" }));
 
-    onUpdate(updatedVehicle).catch(() => {
-      console.error("Errore durante il salvataggio delle modifiche.");
-    });
-
-    navigate("/", { replace: true });
+    try {
+      await onUpdate(updatedVehicle);
+      navigate("/", { replace: true });
+    } catch {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        submit:
+          "Non è stato possibile salvare le modifiche. Controlla la connessione e riprova.",
+      }));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const openDeleteModal = () => {
@@ -166,9 +174,20 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
     setShowDeleteModal(false);
   };
 
-  const confirmDelete = () => {
-    onDelete(vehicle.id);
-    navigate("/");
+  const confirmDelete = async () => {
+    setErrors((prevErrors) => ({ ...prevErrors, submit: "" }));
+
+    try {
+      await onDelete(vehicle.id);
+      navigate("/");
+    } catch {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        submit:
+          "Non è stato possibile eliminare il veicolo. Controlla la connessione e riprova.",
+      }));
+      setShowDeleteModal(false);
+    }
   };
 
   return (
