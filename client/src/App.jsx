@@ -11,8 +11,9 @@ function App({
   showDashboard = false,
   isLoading = false,
   error = "",
-  emptyTitle = "Nessun veicolo trovato",
-  emptyDescription = "Non ci sono veicoli da mostrare in questa sezione.",
+  onRetry,
+  emptyTitle = "Nessun veicolo da mostrare",
+  emptyDescription = "Aggiungi un veicolo o controlla un'altra sezione.",
 }) {
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -24,7 +25,7 @@ function App({
         <StateMessage
           icon="⏳"
           title="Caricamento veicoli..."
-          description="Sto recuperando le informazioni del tuo garage."
+          description="Sto recuperando le informazioni del tuo garage. Se il backend gratuito su Render si sta avviando, potrebbe servire qualche secondo."
         />
       ) : error ? (
         <StateMessage
@@ -32,6 +33,8 @@ function App({
           title="Qualcosa è andato storto"
           description={error}
           type="error"
+          actionLabel="Riprova"
+          onAction={onRetry}
         />
       ) : vehicles.length === 0 ? (
         <EmptyState

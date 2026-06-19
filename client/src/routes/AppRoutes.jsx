@@ -44,10 +44,12 @@ export default function AppRoutes() {
       if (storedVehicles) {
         setVehicles(JSON.parse(storedVehicles));
         setError(
-          "Backend non raggiungibile. Sto mostrando i dati salvati nel browser."
+          "Backend momentaneamente non raggiungibile. Sto mostrando gli ultimi dati salvati nel browser."
         );
       } else {
-        setError("Non riesco a caricare i veicoli. Riprova più tardi.");
+        setError(
+          "Non riesco a caricare i veicoli. Il server potrebbe essere in fase di avvio: riprova tra qualche secondo."
+        );
       }
     } finally {
       setIsLoading(false);
@@ -149,6 +151,7 @@ export default function AppRoutes() {
                   showDashboard
                   isLoading={isLoading}
                   error={error}
+                  onRetry={fetchVehicles}
                   emptyTitle="Nessun veicolo presente"
                   emptyDescription="Aggiungi il tuo primo veicolo per iniziare a monitorare le scadenze."
                 />
@@ -167,6 +170,7 @@ export default function AppRoutes() {
                   )}
                   isLoading={isLoading}
                   error={error}
+                  onRetry={fetchVehicles}
                   emptyTitle="Nessun veicolo scaduto ✅"
                   emptyDescription="Tutte le scadenze sono sotto controllo."
                 />
@@ -185,6 +189,7 @@ export default function AppRoutes() {
                   )}
                   isLoading={isLoading}
                   error={error}
+                  onRetry={fetchVehicles}
                   emptyTitle="Nessun veicolo in scadenza 👌"
                   emptyDescription="Non ci sono scadenze nei prossimi 30 giorni."
                 />
