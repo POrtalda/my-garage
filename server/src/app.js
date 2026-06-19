@@ -6,7 +6,24 @@ const vehicleRoutes = require("./routes/vehicleRoutes");
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  "https://my-garage-expiration.netlify.app",
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
+  })
+);
+
 app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/health", healthRoutes);
