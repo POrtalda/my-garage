@@ -14,6 +14,8 @@ import {
   getVehicles,
   updateVehicle,
 } from "../services/vehiclesApi";
+import Login from "../components/Auth/Login";
+import Register from "../components/Auth/Register";
 
 function getVehicleId(vehicle) {
   return vehicle.id || vehicle._id;
@@ -210,6 +212,10 @@ export default function AppRoutes() {
 
         <div className="main-content">
           <Routes>
+
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+
             <Route
               path="/"
               element={
