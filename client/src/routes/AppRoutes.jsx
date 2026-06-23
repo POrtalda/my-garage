@@ -1,3 +1,4 @@
+import { useToast } from "../context/ToastContext";
 import { addExpiryFlags } from "../utils/vehicleDates";
 import { BrowserRouter, Route, Routes, useParams } from "react-router";
 import App from "../App";
@@ -27,6 +28,7 @@ export default function AppRoutes() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const { showToast } = useToast();
 
   const fetchVehicles = useCallback(async () => {
     setIsLoading(true);
@@ -77,6 +79,11 @@ export default function AppRoutes() {
       const vehicleWithFlags = addExpiryFlags(createdVehicle);
 
       setVehicles((prevVehicles) => [...prevVehicles, vehicleWithFlags]);
+      showToast({
+        type: "success",
+        title: "Veicolo aggiunto",
+        message: "Il veicolo è stato salvato correttamente.",
+      });
       setError("");
     } catch (err) {
       console.error("Errore creazione veicolo:", err);
@@ -93,6 +100,12 @@ export default function AppRoutes() {
         isSameVehicle(vehicle, optimisticVehicle) ? optimisticVehicle : vehicle
       )
     );
+
+    showToast({
+      type: "success",
+      title: "Modifiche salvate",
+      message: "Le informazioni del veicolo sono state aggiornate.",
+    });
 
     try {
       const savedVehicle = await updateVehicle(
@@ -128,6 +141,12 @@ export default function AppRoutes() {
           (vehicle) => getVehicleId(vehicle)?.toString() !== vehicleId.toString()
         )
       );
+
+      showToast({
+        type: "success",
+        title: "Veicolo eliminato",
+        message: "Il veicolo è stato rimosso correttamente.",
+      });
 
       setError("");
     } catch (err) {
