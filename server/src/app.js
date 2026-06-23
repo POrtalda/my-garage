@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const healthRoutes = require("./routes/healthRoutes");
 const vehicleRoutes = require("./routes/vehicleRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/health", healthRoutes);
 app.use("/api/vehicles", vehicleRoutes);
+app.use("/api/auth", authRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
