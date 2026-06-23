@@ -20,6 +20,8 @@ La demo è pubblicata online con:
 
 Il frontend comunica con il backend tramite API REST.
 
+> Nota: il backend è pubblicato su Render con piano free. Al primo accesso può richiedere qualche secondo per riattivarsi dopo un periodo di inattività.
+
 ---
 
 ## 🔗 Link utili
@@ -61,7 +63,8 @@ Esempio risposta health check:
 * Visualizzazione lista veicoli
 * Dettaglio veicolo
 * Aggiunta nuovo veicolo
-* Upload immagine veicolo
+* Upload immagine veicolo fino a 5 MB
+* Modifica e rimozione immagine dalla pagina dettaglio
 * Modifica delle scadenze
 * Eliminazione veicolo con modale di conferma
 * Filtro veicoli scaduti
@@ -69,12 +72,16 @@ Esempio risposta health check:
 * Dashboard riepilogativa in Home
 * Empty state personalizzati
 * Stati di caricamento ed errore
+* Pulsante “Riprova” in caso di errore API
 * Validazione form con messaggi campo per campo
+* Feedback durante aggiunta, modifica ed eliminazione
 * Supporto Light/Dark mode
 * Persistenza dati su MongoDB Atlas
 * Fallback di lettura da localStorage se il backend non è raggiungibile
 * Layout responsive ottimizzato per smartphone
 * Supporto refresh diretto delle rotte su Netlify
+* Refresh diretto su `/details/:id` senza falso messaggio “Veicolo non trovato”
+* Backend CORS ristretto alla demo Netlify e all’ambiente locale
 
 ---
 
@@ -220,6 +227,28 @@ Endpoint principali:
 
 ---
 
+## 🔐 CORS backend
+
+Il backend usa una configurazione CORS controllata.
+
+Origini abilitate:
+
+```text
+https://my-garage-expiration.netlify.app
+http://localhost:5173
+```
+
+Sono inoltre consentite le richieste senza `origin`, utili per:
+
+* health check Render
+* curl
+* Postman
+* test diretti dell’API
+
+Questa configurazione evita di lasciare il backend aperto a qualsiasi dominio, mantenendo comunque funzionanti demo online e sviluppo locale.
+
+---
+
 ## 💾 Gestione dati
 
 I dati dei veicoli vengono salvati su **MongoDB Atlas** tramite backend Express.
@@ -229,6 +258,8 @@ Operazioni gestite:
 * caricamento veicoli dal backend
 * aggiunta veicolo
 * upload immagine veicolo
+* modifica immagine veicolo
+* rimozione immagine veicolo
 * modifica scadenze
 * eliminazione veicolo
 * persistenza dati dopo refresh pagina
@@ -257,6 +288,14 @@ Il limite attuale di upload è:
 5 MB
 ```
 
+La pagina dettaglio permette di:
+
+* visualizzare l’immagine del veicolo
+* caricare una nuova immagine
+* sostituire l’immagine esistente
+* rimuovere l’immagine
+* tornare alla Home dopo il salvataggio corretto delle modifiche
+
 Questa soluzione è accettabile per una demo portfolio, ma in futuro potrà essere migliorata usando un servizio dedicato come:
 
 * Cloudinary
@@ -273,15 +312,64 @@ Il progetto include diversi miglioramenti pensati per rendere l’esperienza pi�
 
 * messaggi dedicati quando una lista è vuota
 * messaggio di caricamento durante il recupero dati
+* messaggio dedicato al possibile avvio lento del backend Render free
 * messaggio di errore se il backend non risponde
+* pulsante “Riprova” per rilanciare il caricamento dei veicoli
+* fallback di lettura da localStorage se il backend non è raggiungibile
 * validazione nel form di aggiunta veicolo
 * validazione nella pagina dettaglio
-* messaggio di successo dopo aggiornamento scadenze
+* messaggi di errore nei form in caso di richiesta API fallita
+* disabilitazione dei pulsanti durante salvataggio, modifica o eliminazione
+* feedback “Salvataggio...” durante l’invio del form
+* navigazione alla Home solo dopo salvataggio o cancellazione riusciti
 * modale personalizzata per confermare l’eliminazione
 * card veicolo responsive
 * dashboard riepilogativa ottimizzata su mobile
 * layout mobile migliorato per form, dettaglio veicolo e modale delete
 * semaforo stato veicolo ricostruito in CSS per maggiore stabilità su smartphone
+
+---
+
+## 🆕 Migliorie recenti
+
+Le ultime iterazioni hanno migliorato la stabilità e l’esperienza utente del progetto.
+
+### Loading ed errori API
+
+* migliorato il messaggio di caricamento iniziale
+* aggiunto riferimento al possibile avvio lento del backend Render free
+* aggiunto pulsante “Riprova” nel componente `StateMessage`
+* collegata l’azione retry al nuovo caricamento dei veicoli
+* migliorato il messaggio quando il backend non è raggiungibile
+* mantenuto fallback con dati salvati nel browser
+
+### Refresh diretto Details
+
+È stato corretto il comportamento della rotta:
+
+```text
+/details/:id
+```
+
+Prima, facendo refresh diretto sulla pagina dettaglio, poteva comparire per un attimo il messaggio “Veicolo non trovato” mentre il backend stava ancora caricando i dati.
+
+Ora viene mostrato lo stato di caricamento e il messaggio “Veicolo non trovato” compare solo dopo il completamento del caricamento.
+
+### CORS ristretto
+
+Il backend non usa più una configurazione CORS completamente aperta.
+
+Le richieste browser sono consentite solo dalla demo Netlify e dall’ambiente locale di sviluppo.
+
+### Feedback form
+
+I form ora gestiscono meglio le azioni asincrone:
+
+* il form nuovo veicolo attende la risposta del backend
+* i pulsanti vengono disabilitati durante il salvataggio
+* il form si chiude solo se il salvataggio va a buon fine
+* gli errori vengono mostrati nel form
+* la pagina Details naviga alla Home solo dopo aggiornamento o eliminazione riusciti
 
 ---
 
@@ -365,26 +453,59 @@ git diff --check
 
 ## ✅ Test manuale consigliato
 
-Dopo ogni modifica importante, è consigliato verificare manualmente i principali flussi dell’app:
+Dopo ogni modifica importante, è consigliato verificare manualmente i principali flussi dell’app.
+
+### Checklist generale
 
 * aprire la Home e controllare la dashboard riepilogativa
 * verificare la lista veicoli caricata dal backend
+* verificare il messaggio di caricamento iniziale
+* considerare il possibile avvio lento del backend Render free
+* verificare il pulsante “Riprova” in caso di errore API
 * aggiungere un veicolo senza foto
 * aggiungere un veicolo con foto sotto 5 MB
+* verificare la validazione dei campi obbligatori nel form nuovo veicolo
+* verificare il feedback durante il salvataggio
 * aprire il dettaglio di un veicolo
 * modificare le scadenze e salvare
-* verificare il messaggio di successo
-* provare a salvare scadenze vuote e controllare i messaggi di errore
-* aprire i filtri `/expired` e `/expiring`
+* verificare che la navigazione alla Home avvenga dopo il salvataggio riuscito
+* modificare l’immagine dalla pagina Details
+* rimuovere l’immagine dalla pagina Details
 * eliminare un veicolo tramite modale di conferma
+* verificare che la navigazione alla Home avvenga dopo eliminazione riuscita
 * aggiornare la pagina e verificare la persistenza dei dati
 * cambiare tema chiaro/scuro e verificare che la preferenza resti salvata
 * verificare che non compaia errore `QuotaExceededError`
-* verificare il refresh diretto delle rotte Netlify:
+* verificare il comportamento se il backend non è raggiungibile
+* verificare il fallback sui vecchi dati locali del browser, quando disponibili
 
-  * `/expired`
-  * `/expiring`
-  * `/details/:id`
+### Checklist rotte Netlify
+
+Verificare il refresh diretto delle rotte:
+
+* `/`
+* `/expired`
+* `/expiring`
+* `/details/:id`
+
+In particolare, su `/details/:id` il refresh diretto non deve mostrare temporaneamente “Veicolo non trovato” mentre i dati sono ancora in caricamento.
+
+### Checklist post-deploy full-stack
+
+Dopo un deploy online, verificare:
+
+* apertura Home dalla demo Netlify
+* caricamento veicoli dal backend Render
+* health check backend
+* aggiunta veicolo con e senza immagine
+* salvataggio su MongoDB Atlas
+* refresh pagina con dati persistenti
+* modifica scadenze
+* modifica/rimozione immagine
+* eliminazione veicolo
+* filtri `/expired` e `/expiring`
+* refresh diretto delle rotte
+* comportamento del frontend in caso di backend non raggiungibile
 
 ---
 
@@ -466,7 +587,7 @@ http://localhost:5000/api/health
 
 ## 🌱 Stato del progetto
 
-Il progetto è attualmente un **MVP full-stack online**.
+Il progetto è attualmente un **MVP full-stack online stabile**.
 
 Sono già presenti:
 
@@ -474,23 +595,27 @@ Sono già presenti:
 * backend Express pubblicato su Render
 * database MongoDB Atlas
 * CRUD completo dei veicoli
-* upload immagine veicolo
+* upload immagine veicolo fino a 5 MB
+* modifica e rimozione immagine dalla pagina Details
 * validazione form
-* feedback utente
+* feedback utente durante aggiunta, modifica ed eliminazione
 * supporto Light/Dark mode
 * responsive design
 * gestione refresh rotte su Netlify
+* refresh diretto su `/details/:id` corretto
 * API base URL configurabile tramite variabile ambiente
 * fallback localStorage per vecchi dati locali
+* CORS backend ristretto alla demo Netlify e all’ambiente locale
 
 Possibili sviluppi futuri:
 
+* notifiche/toast globali per salvataggi, errori e cancellazioni
 * autenticazione utenti
 * veicoli associati al singolo utente
 * notifiche per scadenze imminenti
 * dashboard più avanzata
+* gestione offline/backend non raggiungibile più evoluta
 * storage immagini con Cloudinary o Amazon S3
-* CORS più restrittivo per ambiente produzione/demo
 * test con Vitest / React Testing Library
 
 ---
