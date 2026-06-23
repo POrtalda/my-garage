@@ -2,7 +2,7 @@
 
 **My Garage** è una web app full-stack sviluppata con **React + Vite**, **Node.js/Express** e **MongoDB Atlas** per gestire veicoli e relative scadenze, come bollo, assicurazione e revisione.
 
-Il progetto nasce come applicazione portfolio e ha l’obiettivo di mostrare un flusso completo di sviluppo web moderno: frontend responsive, routing, componenti riutilizzabili, backend REST API, database MongoDB, deploy online, gestione immagini, validazione dei form, feedback utente e persistenza dati.
+Il progetto nasce come applicazione portfolio e ha l’obiettivo di mostrare un flusso completo di sviluppo web moderno: frontend responsive, routing, componenti riutilizzabili, backend REST API, database MongoDB, deploy online, gestione immagini, validazione dei form, feedback utente, notifiche globali e persistenza dati.
 
 ---
 
@@ -75,6 +75,8 @@ Esempio risposta health check:
 * Pulsante “Riprova” in caso di errore API
 * Validazione form con messaggi campo per campo
 * Feedback durante aggiunta, modifica ed eliminazione
+* Notifiche toast globali dopo aggiunta, modifica ed eliminazione veicolo
+* Sistema di notifiche riutilizzabile con `ToastContext`
 * Supporto Light/Dark mode
 * Persistenza dati su MongoDB Atlas
 * Fallback di lettura da localStorage se il backend non è raggiungibile
@@ -168,7 +170,8 @@ my-garage/
 │     ├─ services/
 │     │  └─ vehiclesApi.js
 │     ├─ context/
-│     │  └─ ThemeContext
+│     │  ├─ ThemeContext
+│     │  └─ ToastContext.jsx
 │     ├─ utils/
 │     │  └─ vehicleDates.js
 │     └─ components/
@@ -180,6 +183,7 @@ my-garage/
 │        ├─ Menu/
 │        ├─ NewVehicle/
 │        ├─ StateMessage/
+│        ├─ Toast/
 │        └─ Vehicle/
 └─ server/
    ├─ .env.example
@@ -321,12 +325,39 @@ Il progetto include diversi miglioramenti pensati per rendere l’esperienza pi�
 * messaggi di errore nei form in caso di richiesta API fallita
 * disabilitazione dei pulsanti durante salvataggio, modifica o eliminazione
 * feedback “Salvataggio...” durante l’invio del form
+* notifiche toast globali per confermare le azioni completate
+* notifica dopo aggiunta veicolo completata
+* notifica dopo modifica veicolo completata
+* notifica dopo eliminazione veicolo completata
+* sistema toast responsive e compatibile con dark mode
 * navigazione alla Home solo dopo salvataggio o cancellazione riusciti
 * modale personalizzata per confermare l’eliminazione
 * card veicolo responsive
 * dashboard riepilogativa ottimizzata su mobile
 * layout mobile migliorato per form, dettaglio veicolo e modale delete
 * semaforo stato veicolo ricostruito in CSS per maggiore stabilità su smartphone
+
+---
+
+## 🔔 Notifiche globali
+
+Il progetto include un sistema di notifiche toast globali basato su `ToastContext`.
+
+Le notifiche vengono mostrate dopo le principali azioni completate correttamente:
+
+* aggiunta veicolo
+* modifica veicolo
+* eliminazione veicolo
+
+Il sistema è composto da:
+
+* componente riutilizzabile `Toast`
+* provider globale `ToastProvider`
+* funzione `showToast`
+* stile responsive
+* supporto Light/Dark mode
+
+Questa struttura permette di riutilizzare facilmente le notifiche anche per future funzionalità, come autenticazione, errori API globali o conferme di salvataggio più avanzate.
 
 ---
 
@@ -370,6 +401,18 @@ I form ora gestiscono meglio le azioni asincrone:
 * il form si chiude solo se il salvataggio va a buon fine
 * gli errori vengono mostrati nel form
 * la pagina Details naviga alla Home solo dopo aggiornamento o eliminazione riusciti
+
+### Notifiche globali toast
+
+È stato aggiunto un sistema di notifiche globali per rendere più evidente il risultato delle azioni principali.
+
+Attualmente vengono mostrate notifiche di successo dopo:
+
+* creazione veicolo
+* aggiornamento veicolo
+* eliminazione veicolo
+
+Il sistema usa un `ToastContext` globale e un componente `Toast` riutilizzabile.
 
 ---
 
@@ -466,13 +509,19 @@ Dopo ogni modifica importante, è consigliato verificare manualmente i principal
 * aggiungere un veicolo con foto sotto 5 MB
 * verificare la validazione dei campi obbligatori nel form nuovo veicolo
 * verificare il feedback durante il salvataggio
+* verificare la notifica toast dopo aggiunta veicolo
 * aprire il dettaglio di un veicolo
 * modificare le scadenze e salvare
 * verificare che la navigazione alla Home avvenga dopo il salvataggio riuscito
+* verificare la notifica toast dopo modifica veicolo
 * modificare l’immagine dalla pagina Details
 * rimuovere l’immagine dalla pagina Details
 * eliminare un veicolo tramite modale di conferma
 * verificare che la navigazione alla Home avvenga dopo eliminazione riuscita
+* verificare la notifica toast dopo eliminazione veicolo
+* verificare la chiusura manuale della notifica toast
+* verificare la scomparsa automatica della notifica dopo qualche secondo
+* verificare i toast in dark mode e su mobile
 * aggiornare la pagina e verificare la persistenza dei dati
 * cambiare tema chiaro/scuro e verificare che la preferenza resti salvata
 * verificare che non compaia errore `QuotaExceededError`
@@ -499,10 +548,13 @@ Dopo un deploy online, verificare:
 * health check backend
 * aggiunta veicolo con e senza immagine
 * salvataggio su MongoDB Atlas
+* notifica toast dopo aggiunta veicolo
 * refresh pagina con dati persistenti
 * modifica scadenze
+* notifica toast dopo modifica veicolo
 * modifica/rimozione immagine
 * eliminazione veicolo
+* notifica toast dopo eliminazione veicolo
 * filtri `/expired` e `/expiring`
 * refresh diretto delle rotte
 * comportamento del frontend in caso di backend non raggiungibile
@@ -599,6 +651,8 @@ Sono già presenti:
 * modifica e rimozione immagine dalla pagina Details
 * validazione form
 * feedback utente durante aggiunta, modifica ed eliminazione
+* notifiche toast globali dopo aggiunta, modifica ed eliminazione
+* sistema `ToastContext` riutilizzabile
 * supporto Light/Dark mode
 * responsive design
 * gestione refresh rotte su Netlify
@@ -609,7 +663,7 @@ Sono già presenti:
 
 Possibili sviluppi futuri:
 
-* notifiche/toast globali per salvataggi, errori e cancellazioni
+* estendere le notifiche toast anche a errori API globali, login e scadenze imminenti
 * autenticazione utenti
 * veicoli associati al singolo utente
 * notifiche per scadenze imminenti
