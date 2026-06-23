@@ -1,13 +1,13 @@
-import { useToast } from "../context/ToastContext";
-import { addExpiryFlags } from "../utils/vehicleDates";
 import { BrowserRouter, Route, Routes, useParams } from "react-router";
+import { useCallback, useEffect, useState } from "react";
 import App from "../App";
 import "./AppRoutes.css";
 import Menu from "../components/Menu/Menu";
-import { useCallback, useEffect, useState } from "react";
 import ThemeContext from "../context/ThemeContext";
+import { useToast } from "../context/ToastContext";
 import Details from "../components/Details/Details";
 import StateMessage from "../components/StateMessage/StateMessage";
+import { addExpiryFlags } from "../utils/vehicleDates";
 import {
   createVehicle,
   deleteVehicle,
@@ -30,34 +30,55 @@ export default function AppRoutes() {
   const [error, setError] = useState("");
   const { showToast } = useToast();
 
-  const fetchVehicles = useCallback(async () => {
-    setIsLoading(true);
-    setError("");
+  const fetchVehicles = useCallback(
+    async ({ showErrorToast = true } = {}) => {
+      setIsLoading(true);
+      setError("");
 
-    try {
-      const apiVehicles = await getVehicles();
-      const withFlags = apiVehicles.map((vehicle) => addExpiryFlags(vehicle));
+      try {
+        const apiVehicles = await getVehicles();
+        const withFlags = apiVehicles.map((vehicle) => addExpiryFlags(vehicle));
 
-      setVehicles(withFlags);
-    } catch (err) {
-      console.error("Errore fetch:", err);
+        setVehicles(withFlags);
+      } catch (err) {
+        console.error("Errore fetch:", err);
 
-      const storedVehicles = localStorage.getItem("vehicles");
+        const storedVehicles = localStorage.getItem("vehicles");
 
-      if (storedVehicles) {
-        setVehicles(JSON.parse(storedVehicles));
-        setError(
-          "Backend momentaneamente non raggiungibile. Sto mostrando gli ultimi dati salvati nel browser."
-        );
-      } else {
-        setError(
-          "Non riesco a caricare i veicoli. Il server potrebbe essere in fase di avvio: riprova tra qualche secondo."
-        );
+        if (storedVehicles) {
+          setVehicles(JSON.parse(storedVehicles));
+          setError(
+            "Backend momentaneamente non raggiungibile. Sto mostrando gli ultimi dati salvati nel browser."
+          );
+
+          if (showErrorToast) {
+            showToast({
+              type: "error",
+              title: "Backend non raggiungibile",
+              message:
+                "Sto usando eventuali dati salvati nel browser. Riprova tra qualche secondo.",
+            });
+          }
+        } else {
+          setError(
+            "Non riesco a caricare i veicoli. Il server potrebbe essere in fase di avvio: riprova tra qualche secondo."
+          );
+
+          if (showErrorToast) {
+            showToast({
+              type: "error",
+              title: "Caricamento non riuscito",
+              message:
+                "Il backend potrebbe essere in fase di avvio. Riprova tra qualche secondo.",
+            });
+          }
+        }
+      } finally {
+        setIsLoading(false);
       }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [showToast]
+  );
 
   useEffect(() => {
     fetchVehicles();
@@ -79,15 +100,25 @@ export default function AppRoutes() {
       const vehicleWithFlags = addExpiryFlags(createdVehicle);
 
       setVehicles((prevVehicles) => [...prevVehicles, vehicleWithFlags]);
+
       showToast({
         type: "success",
         title: "Veicolo aggiunto",
         message: "Il veicolo è stato salvato correttamente.",
       });
+
       setError("");
     } catch (err) {
       console.error("Errore creazione veicolo:", err);
       setError("Non riesco ad aggiungere il veicolo. Riprova più tardi.");
+
+      showToast({
+        type: "error",
+        title: "Aggiunta non riuscita",
+        message:
+          "Il veicolo non è stato salvato. Controlla la connessione e riprova.",
+      });
+
       throw err;
     }
   };
@@ -100,12 +131,6 @@ export default function AppRoutes() {
         isSameVehicle(vehicle, optimisticVehicle) ? optimisticVehicle : vehicle
       )
     );
-
-    showToast({
-      type: "success",
-      title: "Modifiche salvate",
-      message: "Le informazioni del veicolo sono state aggiornate.",
-    });
 
     try {
       const savedVehicle = await updateVehicle(
@@ -121,13 +146,27 @@ export default function AppRoutes() {
         )
       );
 
+      showToast({
+        type: "success",
+        title: "Modifiche salvate",
+        message: "Le informazioni del veicolo sono state aggiornate.",
+      });
+
       setError("");
       return vehicleWithFlags;
     } catch (err) {
       console.error("Errore aggiornamento veicolo:", err);
       setError("Non riesco ad aggiornare il veicolo. Riprova più tardi.");
 
-      await fetchVehicles();
+      await fetchVehicles({ showErrorToast: false });
+
+      showToast({
+        type: "error",
+        title: "Modifica non riuscita",
+        message:
+          "Le modifiche non sono state salvate. Riprova tra qualche secondo.",
+      });
+
       throw err;
     }
   };
@@ -152,6 +191,14 @@ export default function AppRoutes() {
     } catch (err) {
       console.error("Errore eliminazione veicolo:", err);
       setError("Non riesco a eliminare il veicolo. Riprova più tardi.");
+
+      showToast({
+        type: "error",
+        title: "Eliminazione non riuscita",
+        message:
+          "Il veicolo non è stato eliminato. Riprova tra qualche secondo.",
+      });
+
       throw err;
     }
   };
@@ -266,11 +313,5 @@ function DetailsWrapper({ vehicles, isLoading, onUpdate, onDelete }) {
     );
   }
 
-  return (
-    <Details
-      vehicle={vehicle}
-      onUpdate={onUpdate}
-      onDelete={onDelete}
-    />
-  );
+  return <Details vehicle={vehicle} onUpdate={onUpdate} onDelete={onDelete} />;
 }
