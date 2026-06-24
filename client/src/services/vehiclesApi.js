@@ -1,6 +1,14 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
+class ApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 function getAuthHeaders() {
   const storedAuth = localStorage.getItem("my-garage-auth");
 
@@ -20,6 +28,7 @@ function getAuthHeaders() {
     };
   } catch (error) {
     console.error("Errore lettura token auth:", error);
+    localStorage.removeItem("my-garage-auth");
     return {};
   }
 }
@@ -52,7 +61,10 @@ async function handleResponse(response) {
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
 
-    throw new Error(errorData?.message || "Errore durante la richiesta API");
+    throw new ApiError(
+      errorData?.message || "Errore durante la richiesta API",
+      response.status
+    );
   }
 
   if (response.status === 204) {
