@@ -3,6 +3,7 @@ import {
   Navigate,
   Route,
   Routes,
+  useNavigate,
   useParams,
 } from "react-router";
 import { useCallback, useEffect, useState } from "react";
@@ -32,6 +33,10 @@ function isSameVehicle(vehicleA, vehicleB) {
   return getVehicleId(vehicleA)?.toString() === getVehicleId(vehicleB)?.toString();
 }
 
+function isAuthError(error) {
+  return error?.status === 401 || error?.status === 403;
+}
+
 function getStoredAuthToken() {
   const storedAuth = localStorage.getItem("my-garage-auth");
 
@@ -44,6 +49,7 @@ function getStoredAuthToken() {
     return auth.token || "";
   } catch (error) {
     console.error("Errore lettura sessione auth:", error);
+    localStorage.removeItem("my-garage-auth");
     return "";
   }
 }
@@ -71,12 +77,36 @@ function PublicOnlyRoute({ children }) {
 }
 
 export default function AppRoutes() {
+  return (
+    <BrowserRouter>
+      <AppRoutesContent />
+    </BrowserRouter>
+  );
+}
+
+function AppRoutesContent() {
   const [vehicles, setVehicles] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const { showToast } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleExpiredSession = useCallback(() => {
+    logout();
+    setVehicles([]);
+    setError("");
+    setIsLoading(false);
+
+    showToast({
+      type: "error",
+      title: "Sessione scaduta",
+      message: "Effettua di nuovo il login per continuare.",
+    });
+
+    navigate("/login", { replace: true });
+  }, [logout, navigate, showToast]);
 
   const fetchVehicles = useCallback(
     async ({ showErrorToast = true } = {}) => {
@@ -99,6 +129,11 @@ export default function AppRoutes() {
         setVehicles(withFlags);
       } catch (err) {
         console.error("Errore fetch:", err);
+
+        if (isAuthError(err)) {
+          handleExpiredSession();
+          return;
+        }
 
         const storedVehicles = localStorage.getItem("vehicles");
 
@@ -134,7 +169,7 @@ export default function AppRoutes() {
         setIsLoading(false);
       }
     },
-    [isAuthenticated, showToast]
+    [handleExpiredSession, isAuthenticated, showToast]
   );
 
   useEffect(() => {
@@ -175,6 +210,12 @@ export default function AppRoutes() {
       setError("");
     } catch (err) {
       console.error("Errore creazione veicolo:", err);
+
+      if (isAuthError(err)) {
+        handleExpiredSession();
+        throw err;
+      }
+
       setError("Non riesco ad aggiungere il veicolo. Riprova più tardi.");
 
       showToast({
@@ -221,6 +262,12 @@ export default function AppRoutes() {
       return vehicleWithFlags;
     } catch (err) {
       console.error("Errore aggiornamento veicolo:", err);
+
+      if (isAuthError(err)) {
+        handleExpiredSession();
+        throw err;
+      }
+
       setError("Non riesco ad aggiornare il veicolo. Riprova più tardi.");
 
       await fetchVehicles({ showErrorToast: false });
@@ -255,6 +302,12 @@ export default function AppRoutes() {
       setError("");
     } catch (err) {
       console.error("Errore eliminazione veicolo:", err);
+
+      if (isAuthError(err)) {
+        handleExpiredSession();
+        throw err;
+      }
+
       setError("Non riesco a eliminare il veicolo. Riprova più tardi.");
 
       showToast({
@@ -270,109 +323,107 @@ export default function AppRoutes() {
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode }}>
-      <BrowserRouter>
-        <Menu title="My Garage" onAddVehicle={handleAddVehicle} />
+      <Menu title="My Garage" onAddVehicle={handleAddVehicle} />
 
-        <div className="main-content">
-          <Routes>
-            <Route
-              path="login"
-              element={
-                <PublicOnlyRoute>
-                  <Login />
-                </PublicOnlyRoute>
-              }
-            />
+      <div className="main-content">
+        <Routes>
+          <Route
+            path="login"
+            element={
+              <PublicOnlyRoute>
+                <Login />
+              </PublicOnlyRoute>
+            }
+          />
 
-            <Route
-              path="register"
-              element={
-                <PublicOnlyRoute>
-                  <Register />
-                </PublicOnlyRoute>
-              }
-            />
+          <Route
+            path="register"
+            element={
+              <PublicOnlyRoute>
+                <Register />
+              </PublicOnlyRoute>
+            }
+          />
 
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <App
-                    vehicles={vehicles}
-                    showDashboard
-                    isLoading={isLoading}
-                    error={error}
-                    onRetry={fetchVehicles}
-                    emptyTitle="Nessun veicolo presente"
-                    emptyDescription="Aggiungi il tuo primo veicolo per iniziare a monitorare le scadenze."
-                  />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <App
+                  vehicles={vehicles}
+                  showDashboard
+                  isLoading={isLoading}
+                  error={error}
+                  onRetry={fetchVehicles}
+                  emptyTitle="Nessun veicolo presente"
+                  emptyDescription="Aggiungi il tuo primo veicolo per iniziare a monitorare le scadenze."
+                />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="expired"
-              element={
-                <ProtectedRoute>
-                  <App
-                    vehicles={vehicles.filter(
-                      (vehicle) =>
-                        vehicle.expired_car_tax ||
-                        vehicle.expired_insurance ||
-                        vehicle.expired_revision
-                    )}
-                    isLoading={isLoading}
-                    error={error}
-                    onRetry={fetchVehicles}
-                    emptyTitle="Nessun veicolo scaduto ✅"
-                    emptyDescription="Tutte le scadenze sono sotto controllo."
-                  />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="expired"
+            element={
+              <ProtectedRoute>
+                <App
+                  vehicles={vehicles.filter(
+                    (vehicle) =>
+                      vehicle.expired_car_tax ||
+                      vehicle.expired_insurance ||
+                      vehicle.expired_revision
+                  )}
+                  isLoading={isLoading}
+                  error={error}
+                  onRetry={fetchVehicles}
+                  emptyTitle="Nessun veicolo scaduto ✅"
+                  emptyDescription="Tutte le scadenze sono sotto controllo."
+                />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="expiring"
-              element={
-                <ProtectedRoute>
-                  <App
-                    vehicles={vehicles.filter(
-                      (vehicle) =>
-                        vehicle.expiring_car_tax ||
-                        vehicle.expiring_insurance ||
-                        vehicle.expiring_revision
-                    )}
-                    isLoading={isLoading}
-                    error={error}
-                    onRetry={fetchVehicles}
-                    emptyTitle="Nessun veicolo in scadenza 👌"
-                    emptyDescription="Non ci sono scadenze nei prossimi 30 giorni."
-                  />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="expiring"
+            element={
+              <ProtectedRoute>
+                <App
+                  vehicles={vehicles.filter(
+                    (vehicle) =>
+                      vehicle.expiring_car_tax ||
+                      vehicle.expiring_insurance ||
+                      vehicle.expiring_revision
+                  )}
+                  isLoading={isLoading}
+                  error={error}
+                  onRetry={fetchVehicles}
+                  emptyTitle="Nessun veicolo in scadenza 👌"
+                  emptyDescription="Non ci sono scadenze nei prossimi 30 giorni."
+                />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="details/:id"
-              element={
-                <ProtectedRoute>
-                  <DetailsWrapper
-                    vehicles={vehicles}
-                    isLoading={isLoading}
-                    onUpdate={handleUpdateVehicle}
-                    onDelete={handleDeleteVehicle}
-                  />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="details/:id"
+            element={
+              <ProtectedRoute>
+                <DetailsWrapper
+                  vehicles={vehicles}
+                  isLoading={isLoading}
+                  onUpdate={handleUpdateVehicle}
+                  onDelete={handleDeleteVehicle}
+                />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="*"
-              element={<p style={{ padding: "20px" }}>❌ Pagina non trovata</p>}
-            />
-          </Routes>
-        </div>
-      </BrowserRouter>
+          <Route
+            path="*"
+            element={<p style={{ padding: "20px" }}>❌ Pagina non trovata</p>}
+          />
+        </Routes>
+      </div>
     </ThemeContext.Provider>
   );
 }
