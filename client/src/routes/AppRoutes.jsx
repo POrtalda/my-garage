@@ -1,10 +1,17 @@
-import { BrowserRouter, Route, Routes, useParams } from "react-router";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useParams,
+} from "react-router";
 import { useCallback, useEffect, useState } from "react";
 import App from "../App";
 import "./AppRoutes.css";
 import Menu from "../components/Menu/Menu";
 import ThemeContext from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import Details from "../components/Details/Details";
 import StateMessage from "../components/StateMessage/StateMessage";
 import { addExpiryFlags } from "../utils/vehicleDates";
@@ -25,15 +32,63 @@ function isSameVehicle(vehicleA, vehicleB) {
   return getVehicleId(vehicleA)?.toString() === getVehicleId(vehicleB)?.toString();
 }
 
+function getStoredAuthToken() {
+  const storedAuth = localStorage.getItem("my-garage-auth");
+
+  if (!storedAuth) {
+    return "";
+  }
+
+  try {
+    const auth = JSON.parse(storedAuth);
+    return auth.token || "";
+  } catch (error) {
+    console.error("Errore lettura sessione auth:", error);
+    return "";
+  }
+}
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  const hasStoredToken = Boolean(getStoredAuthToken());
+
+  if (!isAuthenticated && !hasStoredToken) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+function PublicOnlyRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  const hasStoredToken = Boolean(getStoredAuthToken());
+
+  if (isAuthenticated || hasStoredToken) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
 export default function AppRoutes() {
   const [vehicles, setVehicles] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const { showToast } = useToast();
+  const { isAuthenticated } = useAuth();
 
   const fetchVehicles = useCallback(
     async ({ showErrorToast = true } = {}) => {
+      const hasStoredToken = Boolean(getStoredAuthToken());
+
+      if (!isAuthenticated && !hasStoredToken) {
+        setVehicles([]);
+        setIsLoading(false);
+        setError("");
+        return;
+      }
+
       setIsLoading(true);
       setError("");
 
@@ -79,12 +134,20 @@ export default function AppRoutes() {
         setIsLoading(false);
       }
     },
-    [showToast]
+    [isAuthenticated, showToast]
   );
 
   useEffect(() => {
     fetchVehicles();
   }, [fetchVehicles]);
+
+  useEffect(() => {
+    if (!isAuthenticated && !getStoredAuthToken()) {
+      setVehicles([]);
+      setError("");
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const lsDark = JSON.parse(localStorage.getItem("vehicles-dark-mode"));
@@ -212,72 +275,94 @@ export default function AppRoutes() {
 
         <div className="main-content">
           <Routes>
+            <Route
+              path="login"
+              element={
+                <PublicOnlyRoute>
+                  <Login />
+                </PublicOnlyRoute>
+              }
+            />
 
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
+            <Route
+              path="register"
+              element={
+                <PublicOnlyRoute>
+                  <Register />
+                </PublicOnlyRoute>
+              }
+            />
 
             <Route
               path="/"
               element={
-                <App
-                  vehicles={vehicles}
-                  showDashboard
-                  isLoading={isLoading}
-                  error={error}
-                  onRetry={fetchVehicles}
-                  emptyTitle="Nessun veicolo presente"
-                  emptyDescription="Aggiungi il tuo primo veicolo per iniziare a monitorare le scadenze."
-                />
+                <ProtectedRoute>
+                  <App
+                    vehicles={vehicles}
+                    showDashboard
+                    isLoading={isLoading}
+                    error={error}
+                    onRetry={fetchVehicles}
+                    emptyTitle="Nessun veicolo presente"
+                    emptyDescription="Aggiungi il tuo primo veicolo per iniziare a monitorare le scadenze."
+                  />
+                </ProtectedRoute>
               }
             />
 
             <Route
               path="expired"
               element={
-                <App
-                  vehicles={vehicles.filter(
-                    (vehicle) =>
-                      vehicle.expired_car_tax ||
-                      vehicle.expired_insurance ||
-                      vehicle.expired_revision
-                  )}
-                  isLoading={isLoading}
-                  error={error}
-                  onRetry={fetchVehicles}
-                  emptyTitle="Nessun veicolo scaduto ✅"
-                  emptyDescription="Tutte le scadenze sono sotto controllo."
-                />
+                <ProtectedRoute>
+                  <App
+                    vehicles={vehicles.filter(
+                      (vehicle) =>
+                        vehicle.expired_car_tax ||
+                        vehicle.expired_insurance ||
+                        vehicle.expired_revision
+                    )}
+                    isLoading={isLoading}
+                    error={error}
+                    onRetry={fetchVehicles}
+                    emptyTitle="Nessun veicolo scaduto ✅"
+                    emptyDescription="Tutte le scadenze sono sotto controllo."
+                  />
+                </ProtectedRoute>
               }
             />
 
             <Route
               path="expiring"
               element={
-                <App
-                  vehicles={vehicles.filter(
-                    (vehicle) =>
-                      vehicle.expiring_car_tax ||
-                      vehicle.expiring_insurance ||
-                      vehicle.expiring_revision
-                  )}
-                  isLoading={isLoading}
-                  error={error}
-                  onRetry={fetchVehicles}
-                  emptyTitle="Nessun veicolo in scadenza 👌"
-                  emptyDescription="Non ci sono scadenze nei prossimi 30 giorni."
-                />
+                <ProtectedRoute>
+                  <App
+                    vehicles={vehicles.filter(
+                      (vehicle) =>
+                        vehicle.expiring_car_tax ||
+                        vehicle.expiring_insurance ||
+                        vehicle.expiring_revision
+                    )}
+                    isLoading={isLoading}
+                    error={error}
+                    onRetry={fetchVehicles}
+                    emptyTitle="Nessun veicolo in scadenza 👌"
+                    emptyDescription="Non ci sono scadenze nei prossimi 30 giorni."
+                  />
+                </ProtectedRoute>
               }
             />
 
             <Route
               path="details/:id"
               element={
-                <DetailsWrapper
-                  vehicles={vehicles}
-                  isLoading={isLoading}
-                  onUpdate={handleUpdateVehicle}
-                  onDelete={handleDeleteVehicle}
-                />
+                <ProtectedRoute>
+                  <DetailsWrapper
+                    vehicles={vehicles}
+                    isLoading={isLoading}
+                    onUpdate={handleUpdateVehicle}
+                    onDelete={handleDeleteVehicle}
+                  />
+                </ProtectedRoute>
               }
             />
 
