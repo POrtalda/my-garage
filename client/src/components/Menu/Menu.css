@@ -44,3 +44,66 @@ body.dark .menu {
   gap: 1rem;
   margin-top: 1rem;
 }
+
+.menu-user {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 120px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 14px;
+  background: rgba(77, 182, 172, 0.14);
+  color: #00695c;
+  line-height: 1.2;
+}
+
+.menu-user-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+.menu-user strong {
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.menu-logout {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.menu-logout:hover {
+  background: #dc2626;
+}
+
+body.dark .menu-user {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ccfbf1;
+}
+
+@media (max-width: 720px) {
+  .menu {
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .menu li a {
+    padding: 0.45rem 0.65rem;
+  }
+
+  .menu-actions {
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0 1rem;
+  }
+
+  .menu-user {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+}
