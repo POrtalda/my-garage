@@ -8,7 +8,11 @@ const {
   deleteVehicle,
 } = require("../controllers/vehicleController");
 
+const { protect } = require("../middleware/authMiddleware");
+
 const router = express.Router();
+
+router.use(protect);
 
 router.route("/").get(getVehicles).post(createVehicle);
 

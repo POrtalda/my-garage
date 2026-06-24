@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const vehicleSchema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "L'utente proprietario è obbligatorio"],
+      index: true,
+    },
     brand: {
       type: String,
       required: [true, "La marca è obbligatoria"],
