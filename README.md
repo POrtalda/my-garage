@@ -2,7 +2,7 @@
 
 **My Garage** è una web app full-stack sviluppata con **React + Vite**, **Node.js/Express** e **MongoDB Atlas** per gestire veicoli e relative scadenze, come bollo, assicurazione e revisione.
 
-Il progetto nasce come applicazione portfolio e ha l’obiettivo di mostrare un flusso completo di sviluppo web moderno: frontend responsive, routing, componenti riutilizzabili, backend REST API, database MongoDB, deploy online, gestione immagini, validazione dei form, feedback utente, notifiche globali e persistenza dati.
+Il progetto nasce come applicazione portfolio e ha l’obiettivo di mostrare un flusso completo di sviluppo web moderno: frontend responsive, routing, componenti riutilizzabili, backend REST API, database MongoDB, deploy online, gestione immagini, validazione dei form, feedback utente, notifiche globali, autenticazione utenti e persistenza dati.
 
 ---
 
@@ -60,6 +60,12 @@ Esempio risposta health check:
 
 ## 🚗 Funzionalità principali
 
+* Registrazione e login utenti
+* Logout dal menu principale
+* Persistenza sessione utente con token JWT
+* API veicoli protette tramite autenticazione
+* Veicoli associati al singolo utente
+* Ogni utente vede solo i propri veicoli
 * Visualizzazione lista veicoli
 * Dettaglio veicolo
 * Aggiunta nuovo veicolo
@@ -75,7 +81,7 @@ Esempio risposta health check:
 * Pulsante “Riprova” in caso di errore API
 * Validazione form con messaggi campo per campo
 * Feedback durante aggiunta, modifica ed eliminazione
-* Notifiche toast globali dopo aggiunta, modifica ed eliminazione veicolo
+* Notifiche toast globali dopo login, registrazione, logout, aggiunta, modifica ed eliminazione veicolo
 * Sistema di notifiche riutilizzabile con `ToastContext`
 * Supporto Light/Dark mode
 * Persistenza dati su MongoDB Atlas
@@ -97,7 +103,7 @@ Esempio risposta health check:
 * React Icons
 * Context API
 * CSS modulare per componenti
-* localStorage per preferenza tema e fallback dati
+* localStorage per preferenza tema, fallback dati e sessione utente
 * Netlify
 
 ### Backend
@@ -106,6 +112,8 @@ Esempio risposta health check:
 * Express
 * Mongoose
 * MongoDB Atlas
+* JWT
+* bcryptjs
 * dotenv
 * cors
 * Render
@@ -168,13 +176,16 @@ my-garage/
 │     ├─ routes/
 │     │  └─ AppRoutes.jsx
 │     ├─ services/
+│     │  ├─ authApi.js
 │     │  └─ vehiclesApi.js
 │     ├─ context/
+│     │  ├─ AuthContext.jsx
 │     │  ├─ ThemeContext
 │     │  └─ ToastContext.jsx
 │     ├─ utils/
 │     │  └─ vehicleDates.js
 │     └─ components/
+│        ├─ Auth/
 │        ├─ DashboardSummary/
 │        ├─ DarkLight/
 │        ├─ DeleteConfirmationModal/
@@ -194,11 +205,16 @@ my-garage/
       ├─ config/
       │  └─ db.js
       ├─ controllers/
+      │  ├─ authController.js
       │  ├─ healthController.js
       │  └─ vehicleController.js
+      ├─ middleware/
+      │  └─ authMiddleware.js
       ├─ models/
+      │  ├─ User.js
       │  └─ Vehicle.js
       └─ routes/
+         ├─ authRoutes.js
          ├─ healthRoutes.js
          └─ vehicleRoutes.js
 ```
@@ -210,6 +226,8 @@ my-garage/
 | Rotta          | Descrizione                                      |
 | -------------- | ------------------------------------------------ |
 | `/`            | Home con lista veicoli e dashboard riepilogativa |
+| `/login`       | Login utente                                     |
+| `/register`    | Registrazione nuovo utente                       |
 | `/expired`     | Veicoli con almeno una scadenza superata         |
 | `/expiring`    | Veicoli con almeno una scadenza entro 30 giorni  |
 | `/details/:id` | Dettaglio e modifica scadenze del veicolo        |
@@ -218,16 +236,79 @@ my-garage/
 
 ## 🔌 API backend
 
-Endpoint principali:
+### Auth
 
-| Metodo | Endpoint            | Descrizione                   |
-| ------ | ------------------- | ----------------------------- |
-| GET    | `/api/health`       | Verifica stato API            |
-| GET    | `/api/vehicles`     | Recupera tutti i veicoli      |
-| GET    | `/api/vehicles/:id` | Recupera un veicolo per ID    |
-| POST   | `/api/vehicles`     | Crea un nuovo veicolo         |
-| PATCH  | `/api/vehicles/:id` | Aggiorna un veicolo esistente |
-| DELETE | `/api/vehicles/:id` | Elimina un veicolo            |
+| Metodo | Endpoint             | Descrizione              |
+| ------ | -------------------- | ------------------------ |
+| POST   | `/api/auth/register` | Registra un nuovo utente |
+| POST   | `/api/auth/login`    | Login utente             |
+
+### Health check
+
+| Metodo | Endpoint      | Descrizione        |
+| ------ | ------------- | ------------------ |
+| GET    | `/api/health` | Verifica stato API |
+
+### Veicoli
+
+Gli endpoint `/api/vehicles` sono protetti e richiedono autenticazione tramite JWT.
+
+Header richiesto:
+
+```text
+Authorization: Bearer <token>
+```
+
+| Metodo | Endpoint            | Descrizione                                 |
+| ------ | ------------------- | ------------------------------------------- |
+| GET    | `/api/vehicles`     | Recupera i veicoli dell’utente autenticato  |
+| GET    | `/api/vehicles/:id` | Recupera un veicolo dell’utente autenticato |
+| POST   | `/api/vehicles`     | Crea un nuovo veicolo associato all’utente  |
+| PATCH  | `/api/vehicles/:id` | Aggiorna un veicolo dell’utente autenticato |
+| DELETE | `/api/vehicles/:id` | Elimina un veicolo dell’utente autenticato  |
+
+---
+
+## 🔐 Autenticazione utenti
+
+My Garage include una prima gestione completa dell’autenticazione utenti.
+
+Sono disponibili:
+
+* registrazione nuovo utente
+* login utente
+* logout dal menu principale
+* salvataggio di utente e token JWT in `localStorage`
+* invio automatico del token nelle richieste verso le API veicoli
+* protezione backend delle rotte `/api/vehicles`
+
+Il backend genera un token JWT al momento di registrazione o login.
+
+Il frontend salva le informazioni in:
+
+```text
+my-garage-auth
+```
+
+Le richieste verso le API veicoli includono l’header:
+
+```text
+Authorization: Bearer <token>
+```
+
+### Veicoli per utente
+
+Ogni veicolo viene associato all’utente autenticato tramite il campo `user` nel modello `Vehicle`.
+
+Questo significa che:
+
+* un utente vede solo i propri veicoli
+* un utente può aprire solo i propri dettagli veicolo
+* un utente può modificare solo i propri veicoli
+* un utente può eliminare solo i propri veicoli
+* le API veicoli non sono più accessibili senza login
+
+> Nota: i veicoli creati prima dell’introduzione dell’autenticazione non hanno il campo `user` e quindi non vengono più mostrati agli utenti loggati.
 
 ---
 
@@ -259,8 +340,12 @@ I dati dei veicoli vengono salvati su **MongoDB Atlas** tramite backend Express.
 
 Operazioni gestite:
 
-* caricamento veicoli dal backend
-* aggiunta veicolo
+* registrazione utente
+* login utente
+* logout lato frontend
+* generazione token JWT
+* caricamento veicoli dell’utente autenticato
+* aggiunta veicolo associato all’utente
 * upload immagine veicolo
 * modifica immagine veicolo
 * rimozione immagine veicolo
@@ -268,10 +353,12 @@ Operazioni gestite:
 * eliminazione veicolo
 * persistenza dati dopo refresh pagina
 * mantenimento preferenza tema chiaro/scuro
+* mantenimento sessione utente nel browser
 
 Il `localStorage` viene usato per:
 
 * preferenza tema Light/Dark
+* dati utente e token JWT
 * fallback di lettura di eventuali vecchi dati locali se il backend non è raggiungibile
 
 Il `localStorage` non salva più le immagini dei veicoli, per evitare errori di quota come:
@@ -325,11 +412,16 @@ Il progetto include diversi miglioramenti pensati per rendere l’esperienza pi�
 * messaggi di errore nei form in caso di richiesta API fallita
 * disabilitazione dei pulsanti durante salvataggio, modifica o eliminazione
 * feedback “Salvataggio...” durante l’invio del form
+* toast dopo login completato
+* toast dopo registrazione completata
+* toast dopo logout
 * notifiche toast globali per confermare le azioni completate
 * notifica dopo aggiunta veicolo completata
 * notifica dopo modifica veicolo completata
 * notifica dopo eliminazione veicolo completata
 * sistema toast responsive e compatibile con dark mode
+* menu dinamico in base allo stato di autenticazione
+* visualizzazione utente loggato nel menu
 * navigazione alla Home solo dopo salvataggio o cancellazione riusciti
 * modale personalizzata per confermare l’eliminazione
 * card veicolo responsive
@@ -345,6 +437,9 @@ Il progetto include un sistema di notifiche toast globali basato su `ToastContex
 
 Le notifiche vengono mostrate dopo le principali azioni completate correttamente:
 
+* registrazione utente
+* login utente
+* logout utente
 * aggiunta veicolo
 * modifica veicolo
 * eliminazione veicolo
@@ -357,13 +452,13 @@ Il sistema è composto da:
 * stile responsive
 * supporto Light/Dark mode
 
-Questa struttura permette di riutilizzare facilmente le notifiche anche per future funzionalità, come autenticazione, errori API globali o conferme di salvataggio più avanzate.
+Questa struttura permette di riutilizzare facilmente le notifiche anche per future funzionalità, come gestione sessione scaduta, errori API globali o conferme di salvataggio più avanzate.
 
 ---
 
 ## 🆕 Migliorie recenti
 
-Le ultime iterazioni hanno migliorato la stabilità e l’esperienza utente del progetto.
+Le ultime iterazioni hanno migliorato la stabilità, la sicurezza e l’esperienza utente del progetto.
 
 ### Loading ed errori API
 
@@ -408,11 +503,40 @@ I form ora gestiscono meglio le azioni asincrone:
 
 Attualmente vengono mostrate notifiche di successo dopo:
 
+* registrazione utente
+* login utente
+* logout utente
 * creazione veicolo
 * aggiornamento veicolo
 * eliminazione veicolo
 
 Il sistema usa un `ToastContext` globale e un componente `Toast` riutilizzabile.
+
+### Autenticazione utenti
+
+È stata aggiunta la base completa per autenticazione utenti:
+
+* registrazione
+* login
+* logout
+* token JWT
+* password hashata con `bcryptjs`
+* persistenza sessione in `localStorage`
+* menu dinamico in base allo stato login
+* invio automatico del token nelle richieste veicoli
+
+### API veicoli protette
+
+Le API dei veicoli sono ora protette tramite middleware backend.
+
+Il middleware:
+
+* legge l’header `Authorization`
+* verifica il token JWT
+* carica l’utente autenticato
+* rende disponibile l’utente in `req.user`
+
+Le operazioni sui veicoli sono filtrate per utente autenticato.
 
 ---
 
@@ -440,6 +564,8 @@ client/public/_redirects
 
 Questo file permette il refresh diretto delle rotte gestite da React Router, come:
 
+* `/login`
+* `/register`
 * `/expired`
 * `/expiring`
 * `/details/:id`
@@ -462,12 +588,17 @@ Variabili ambiente principali lato backend:
 
 ```env
 MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_jwt_secret
 PORT=5000
 ```
 
 ### Database MongoDB Atlas
 
-MongoDB Atlas viene usato per salvare i dati dei veicoli.
+MongoDB Atlas viene usato per salvare:
+
+* utenti
+* password hashate
+* veicoli associati agli utenti
 
 ---
 
@@ -498,10 +629,28 @@ git diff --check
 
 Dopo ogni modifica importante, è consigliato verificare manualmente i principali flussi dell’app.
 
+### Checklist autenticazione
+
+* aprire `/register`
+* registrare un nuovo utente
+* verificare toast di registrazione completata
+* verificare redirect alla Home
+* verificare presenza di `my-garage-auth` nel localStorage
+* verificare utente visibile nel menu
+* effettuare logout
+* verificare toast di logout
+* verificare redirect a `/login`
+* effettuare login con credenziali corrette
+* verificare toast di login completato
+* verificare che le chiamate veicoli usino il token JWT
+* aggiungere un veicolo da utente loggato
+* aggiornare la pagina e verificare che il veicolo resti visibile
+* verificare che vecchi veicoli senza `user` non vengano mostrati
+
 ### Checklist generale
 
 * aprire la Home e controllare la dashboard riepilogativa
-* verificare la lista veicoli caricata dal backend
+* verificare la lista veicoli caricata dal backend per l’utente loggato
 * verificare il messaggio di caricamento iniziale
 * considerare il possibile avvio lento del backend Render free
 * verificare il pulsante “Riprova” in caso di errore API
@@ -528,11 +677,23 @@ Dopo ogni modifica importante, è consigliato verificare manualmente i principal
 * verificare il comportamento se il backend non è raggiungibile
 * verificare il fallback sui vecchi dati locali del browser, quando disponibili
 
+### Checklist API protette
+
+* chiamare `/api/vehicles` senza token e verificare errore `401`
+* effettuare login e ottenere token JWT
+* verificare che `/api/vehicles` funzioni con header `Authorization`
+* creare un veicolo da utente autenticato
+* verificare che il veicolo venga associato all’utente
+* verificare che un utente non possa vedere veicoli di altri utenti
+* verificare che modifica ed eliminazione funzionino solo sui veicoli dell’utente autenticato
+
 ### Checklist rotte Netlify
 
 Verificare il refresh diretto delle rotte:
 
 * `/`
+* `/login`
+* `/register`
 * `/expired`
 * `/expiring`
 * `/details/:id`
@@ -544,7 +705,10 @@ In particolare, su `/details/:id` il refresh diretto non deve mostrare temporane
 Dopo un deploy online, verificare:
 
 * apertura Home dalla demo Netlify
-* caricamento veicoli dal backend Render
+* registrazione utente
+* login utente
+* logout utente
+* caricamento veicoli dal backend Render con utente autenticato
 * health check backend
 * aggiunta veicolo con e senza immagine
 * salvataggio su MongoDB Atlas
@@ -614,6 +778,7 @@ Crea il file `.env` partendo da `.env.example`:
 
 ```env
 MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_jwt_secret
 PORT=5000
 ```
 
@@ -639,19 +804,26 @@ http://localhost:5000/api/health
 
 ## 🌱 Stato del progetto
 
-Il progetto è attualmente un **MVP full-stack online stabile**.
+Il progetto è attualmente un **MVP full-stack online stabile con autenticazione utenti e API veicoli protette**.
 
 Sono già presenti:
 
 * frontend React pubblicato su Netlify
 * backend Express pubblicato su Render
 * database MongoDB Atlas
-* CRUD completo dei veicoli
+* registrazione, login e logout
+* autenticazione utenti con JWT
+* password hashate con `bcryptjs`
+* menu dinamico in base allo stato login
+* persistenza sessione in `localStorage`
+* API veicoli protette tramite middleware backend
+* veicoli associati al singolo utente
+* CRUD completo dei veicoli per utente autenticato
 * upload immagine veicolo fino a 5 MB
 * modifica e rimozione immagine dalla pagina Details
 * validazione form
 * feedback utente durante aggiunta, modifica ed eliminazione
-* notifiche toast globali dopo aggiunta, modifica ed eliminazione
+* notifiche toast globali dopo login, registrazione, logout, aggiunta, modifica ed eliminazione
 * sistema `ToastContext` riutilizzabile
 * supporto Light/Dark mode
 * responsive design
@@ -663,9 +835,11 @@ Sono già presenti:
 
 Possibili sviluppi futuri:
 
-* estendere le notifiche toast anche a errori API globali, login e scadenze imminenti
-* autenticazione utenti
-* veicoli associati al singolo utente
+* protezione delle rotte frontend per utenti non autenticati
+* gestione sessione scaduta
+* refresh token o scadenza sessione più evoluta
+* pagina profilo utente
+* estendere le notifiche toast anche a scadenze imminenti
 * notifiche per scadenze imminenti
 * dashboard più avanzata
 * gestione offline/backend non raggiungibile più evoluta
