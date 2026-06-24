@@ -1,6 +1,29 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
+function getAuthHeaders() {
+  const storedAuth = localStorage.getItem("my-garage-auth");
+
+  if (!storedAuth) {
+    return {};
+  }
+
+  try {
+    const auth = JSON.parse(storedAuth);
+
+    if (!auth.token) {
+      return {};
+    }
+
+    return {
+      Authorization: `Bearer ${auth.token}`,
+    };
+  } catch (error) {
+    console.error("Errore lettura token auth:", error);
+    return {};
+  }
+}
+
 function toFrontendVehicle(vehicle) {
   return {
     ...vehicle,
@@ -40,14 +63,24 @@ async function handleResponse(response) {
 }
 
 export async function getVehicles() {
-  const response = await fetch(`${API_BASE_URL}/vehicles`);
+  const response = await fetch(`${API_BASE_URL}/vehicles`, {
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
   const result = await handleResponse(response);
 
   return result.data.map((vehicle) => toFrontendVehicle(vehicle));
 }
 
 export async function getVehicleById(id) {
-  const response = await fetch(`${API_BASE_URL}/vehicles/${id}`);
+  const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
   const result = await handleResponse(response);
 
   return toFrontendVehicle(result.data);
@@ -58,6 +91,7 @@ export async function createVehicle(vehicleData) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(toApiVehicle(vehicleData)),
   });
@@ -72,6 +106,7 @@ export async function updateVehicle(id, vehicleData) {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(toApiVehicle(vehicleData)),
   });
@@ -84,6 +119,9 @@ export async function updateVehicle(id, vehicleData) {
 export async function deleteVehicle(id) {
   const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
     method: "DELETE",
+    headers: {
+      ...getAuthHeaders(),
+    },
   });
 
   return handleResponse(response);
