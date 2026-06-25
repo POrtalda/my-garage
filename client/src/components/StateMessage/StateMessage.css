@@ -51,3 +51,23 @@
   outline: 3px solid rgba(37, 99, 235, 0.35);
   outline-offset: 3px;
 }
+
+body.dark .state-message {
+  background-color: #2f2f42;
+  color: #f5f5f5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+body.dark .state-message p {
+  color: #d7d7e5;
+  opacity: 1;
+}
+
+body.dark .state-message-error {
+  border-color: rgba(255, 138, 128, 0.4);
+}
+
+body.dark .state-message-action {
+  background: #60a5fa;
+  color: #111827;
+}

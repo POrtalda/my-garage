@@ -26,7 +26,7 @@ function formatDate(date) {
 }
 
 function getVehicleName(vehicle) {
-  return [vehicle.marca, vehicle.modello].filter(Boolean).join(" ") || "Veicolo";
+  return [vehicle.brand, vehicle.model].filter(Boolean).join(" ") || "Veicolo";
 }
 
 function getNextExpiry(vehicles = []) {
