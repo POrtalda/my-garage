@@ -105,6 +105,10 @@ function getAlertMessage(alert) {
 export default function ExpiryAlerts({ vehicles }) {
     const alerts = useMemo(() => buildExpiryAlerts(vehicles), [vehicles]);
 
+    if (alerts.length === 0) {
+        return null;
+    }
+
     return (
         <section className="expiry-alerts" aria-label="Avvisi scadenze">
             <div className="expiry-alerts-header">
@@ -118,27 +122,21 @@ export default function ExpiryAlerts({ vehicles }) {
                 )}
             </div>
 
-            {alerts.length === 0 ? (
-                <p className="expiry-alerts-empty">
-                    Nessun veicolo scaduto o in scadenza. Tutto sotto controllo.
-                </p>
-            ) : (
-                <ul className="expiry-alerts-list">
-                    {alerts.map((alert) => (
-                        <li
-                            key={alert.id}
-                            className={`expiry-alert expiry-alert--${alert.status}`}
-                        >
-                            <span className="expiry-alert-dot" aria-hidden="true" />
+            <ul className="expiry-alerts-list">
+                {alerts.map((alert) => (
+                    <li
+                        key={alert.id}
+                        className={`expiry-alert expiry-alert--${alert.status}`}
+                    >
+                        <span className="expiry-alert-dot" aria-hidden="true" />
 
-                            <div>
-                                <strong>{alert.vehicleName}</strong>
-                                <p>{getAlertMessage(alert)}</p>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
+                        <div>
+                            <strong>{alert.vehicleName}</strong>
+                            <p>{getAlertMessage(alert)}</p>
+                        </div>
+                    </li>
+                ))}
+            </ul>
         </section>
     );
 }
