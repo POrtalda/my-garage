@@ -902,6 +902,30 @@ Possibili sviluppi futuri:
 
 ---
 
+## Notifiche email settimanali
+
+My Garage include un sistema backend di notifiche settimanali per avvisare gli utenti quando uno o più veicoli hanno scadenze già superate o in arrivo entro 30 giorni.
+
+Il backend espone un endpoint interno:
+
+POST /api/notifications/weekly-expiry-email
+
+L’endpoint è protetto tramite header:
+
+x-cron-secret: <INTERNAL_CRON_SECRET>
+
+La chiamata viene eseguita automaticamente da uno scheduler esterno ogni lunedì alle 09:00 Europe/Rome.
+
+Per evitare invii duplicati nella stessa settimana, ogni email inviata viene registrata nel modello `NotificationLog` tramite chiave unica composta da:
+
+- user
+- type
+- periodKey
+
+Tipo notifica:
+
+weekly-expiry-email
+
 ## 👨‍💻 Autore
 
 Progetto sviluppato da **Paolo Ortalda** come parte del percorso di crescita nello sviluppo web frontend/full-stack.
