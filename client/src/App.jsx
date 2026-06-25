@@ -5,6 +5,7 @@ import DashboardSummary from "./components/DashboardSummary/DashboardSummary";
 import EmptyState from "./components/EmptyState/EmptyState";
 import StateMessage from "./components/StateMessage/StateMessage";
 import ThemeContext from "./context/ThemeContext";
+import ExpiryAlerts from "./components/ExpiryAlerts/ExpiryAlerts";
 
 function App({
   vehicles,
@@ -20,6 +21,9 @@ function App({
   return (
     <div className={isDarkMode ? "app dark" : "app light"}>
       {showDashboard && <DashboardSummary vehicles={vehicles} />}
+      {showDashboard && !isLoading && !error && vehicles.length > 0 && (
+        <ExpiryAlerts vehicles={vehicles} />
+      )}
 
       {isLoading ? (
         <StateMessage
