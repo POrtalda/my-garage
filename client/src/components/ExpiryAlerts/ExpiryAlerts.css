@@ -44,12 +44,6 @@
   font-weight: 800;
 }
 
-.expiry-alerts-empty {
-  margin: 0;
-  color: #2e7d32;
-  font-weight: 600;
-}
-
 .expiry-alerts-list {
   display: grid;
   gap: 0.75rem;
@@ -112,10 +106,6 @@ body.dark .expiry-alert {
 body.dark .expiry-alert p {
   opacity: 1;
   color: #d7d7e5;
-}
-
-body.dark .expiry-alerts-empty {
-  color: #9be7c0;
 }
 
 body.dark .expiry-alerts-count {
