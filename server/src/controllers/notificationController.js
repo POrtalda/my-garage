@@ -1,0 +1,146 @@
+const User = require("../models/User");
+const Vehicle = require("../models/Vehicle");
+const NotificationLog = require("../models/NotificationLog");
+const { sendEmail } = require("../utils/email");
+const {
+  buildExpiryAlertsForVehicles,
+  getAlertText,
+} = require("../utils/expiryAlerts");
+
+const WEEKLY_EXPIRY_EMAIL_TYPE = "weekly-expiry-email";
+
+function getCurrentWeekKey(date = new Date()) {
+  const currentDate = new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+  );
+
+  const dayNumber = currentDate.getUTCDay() || 7;
+  currentDate.setUTCDate(currentDate.getUTCDate() + 4 - dayNumber);
+
+  const yearStart = new Date(Date.UTC(currentDate.getUTCFullYear(), 0, 1));
+  const weekNumber = Math.ceil(((currentDate - yearStart) / 86400000 + 1) / 7);
+
+  return `${currentDate.getUTCFullYear()}-W${String(weekNumber).padStart(
+    2,
+    "0"
+  )}`;
+}
+
+function buildWeeklyEmailText({ user, alerts }) {
+  const alertLines = alerts.map((alert) => `- ${getAlertText(alert)}`);
+
+  return [
+    `Ciao ${user.name},`,
+    "",
+    "ecco il riepilogo settimanale delle scadenze da controllare su My Garage:",
+    "",
+    ...alertLines,
+    "",
+    "Accedi a My Garage per controllare e aggiornare le tue scadenze.",
+    "",
+    "A presto,",
+    "My Garage",
+  ].join("\n");
+}
+
+function checkCronSecret(req, res) {
+  const configuredSecret = process.env.INTERNAL_CRON_SECRET;
+  const requestSecret = req.get("x-cron-secret");
+
+  if (!configuredSecret) {
+    res.status(500).json({
+      message: "INTERNAL_CRON_SECRET non configurato.",
+    });
+    return false;
+  }
+
+  if (!requestSecret || requestSecret !== configuredSecret) {
+    res.status(401).json({
+      message: "Non autorizzato.",
+    });
+    return false;
+  }
+
+  return true;
+}
+
+async function sendWeeklyExpiryEmails(req, res) {
+  if (!checkCronSecret(req, res)) {
+    return;
+  }
+
+  try {
+    const periodKey = getCurrentWeekKey();
+    const users = await User.find().select("name email");
+
+    const summary = {
+      periodKey,
+      usersChecked: users.length,
+      emailsSent: 0,
+      skippedNoAlerts: 0,
+      skippedAlreadySent: 0,
+      failed: 0,
+      failures: [],
+    };
+
+    for (const user of users) {
+      const vehicles = await Vehicle.find({ user: user._id });
+      const alerts = buildExpiryAlertsForVehicles(vehicles);
+
+      if (alerts.length === 0) {
+        summary.skippedNoAlerts += 1;
+        continue;
+      }
+
+      const existingLog = await NotificationLog.findOne({
+        user: user._id,
+        type: WEEKLY_EXPIRY_EMAIL_TYPE,
+        periodKey,
+      });
+
+      if (existingLog) {
+        summary.skippedAlreadySent += 1;
+        continue;
+      }
+
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: "My Garage - riepilogo scadenze veicoli",
+          text: buildWeeklyEmailText({ user, alerts }),
+        });
+
+        await NotificationLog.create({
+          user: user._id,
+          type: WEEKLY_EXPIRY_EMAIL_TYPE,
+          periodKey,
+          alertCount: alerts.length,
+        });
+
+        summary.emailsSent += 1;
+      } catch (error) {
+        summary.failed += 1;
+        summary.failures.push({
+          userId: user._id,
+          email: user.email,
+          message: error.message,
+        });
+      }
+    }
+
+    res.json({
+      message: "Controllo notifiche settimanali completato.",
+      summary,
+    });
+  } catch (error) {
+    console.error("Errore notifiche settimanali:", error);
+
+    res.status(500).json({
+      message: "Errore durante l'invio delle notifiche settimanali.",
+    });
+  }
+}
+
+module.exports = {
+  sendWeeklyExpiryEmails,
+};
