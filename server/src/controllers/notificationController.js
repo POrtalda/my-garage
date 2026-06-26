@@ -38,6 +38,8 @@ function buildWeeklyEmailText({ user, alerts }) {
     "",
     "Accedi a My Garage per controllare e aggiornare le tue scadenze.",
     "",
+    "Se non vuoi più ricevere queste email, puoi disattivarle dalle impostazioni del tuo account.",
+    "",
     "A presto,",
     "My Garage",
   ].join("\n");
@@ -71,7 +73,10 @@ async function sendWeeklyExpiryEmails(req, res) {
 
   try {
     const periodKey = getCurrentWeekKey();
-    const users = await User.find().select("name email");
+
+    const users = await User.find().select(
+      "name email notifications"
+    );
 
     const summary = {
       periodKey,
@@ -79,11 +84,20 @@ async function sendWeeklyExpiryEmails(req, res) {
       emailsSent: 0,
       skippedNoAlerts: 0,
       skippedAlreadySent: 0,
+      skippedDisabled: 0,
       failed: 0,
       failures: [],
     };
 
     for (const user of users) {
+      const weeklyEmailEnabled =
+        user.notifications?.weeklyExpiryEmail?.enabled !== false;
+
+      if (!weeklyEmailEnabled) {
+        summary.skippedDisabled += 1;
+        continue;
+      }
+
       const vehicles = await Vehicle.find({ user: user._id });
       const alerts = buildExpiryAlertsForVehicles(vehicles);
 

@@ -19,6 +19,14 @@ const userSchema = new mongoose.Schema(
       required: [true, "La password è obbligatoria"],
       minlength: [6, "La password deve contenere almeno 6 caratteri"],
     },
+    notifications: {
+      weeklyExpiryEmail: {
+        enabled: {
+          type: Boolean,
+          default: true,
+        },
+      },
+    },
   },
   {
     timestamps: true,
