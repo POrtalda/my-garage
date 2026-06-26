@@ -108,7 +108,42 @@ async function loginUser(req, res) {
   }
 }
 
+async function getNotificationPreferences(req, res) {
+  res.json({
+    notifications: req.user.notifications || {
+      weeklyExpiryEmail: {
+        enabled: true,
+      },
+    },
+  });
+}
+
+async function updateNotificationPreferences(req, res) {
+  const { weeklyExpiryEmail } = req.body;
+
+  if (!weeklyExpiryEmail || typeof weeklyExpiryEmail.enabled !== "boolean") {
+    return res.status(400).json({
+      message: "Preferenza notifiche non valida.",
+    });
+  }
+
+  req.user.notifications = {
+    weeklyExpiryEmail: {
+      enabled: weeklyExpiryEmail.enabled,
+    },
+  };
+
+  await req.user.save();
+
+  res.json({
+    message: "Preferenze notifiche aggiornate.",
+    notifications: req.user.notifications,
+  });
+}
+
 module.exports = {
   registerUser,
   loginUser,
+  getNotificationPreferences,
+  updateNotificationPreferences
 };

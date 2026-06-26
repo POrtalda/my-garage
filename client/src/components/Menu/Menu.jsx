@@ -39,6 +39,12 @@ export default function Menu({ title, onAddVehicle }) {
           <NavLink to="/expiring">In Scadenza</NavLink>
         </li>
 
+        {isAuthenticated && (
+          <li>
+            <NavLink to="/impostazioni">Impostazioni</NavLink>
+          </li>
+        )}
+
         {!isAuthenticated && (
           <>
             <li>

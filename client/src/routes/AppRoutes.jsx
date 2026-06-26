@@ -24,6 +24,7 @@ import {
 } from "../services/vehiclesApi";
 import Login from "../components/Auth/Login";
 import Register from "../components/Auth/Register";
+import NotificationSettings from "../components/NotificationSettings/NotificationSettings";
 
 function getVehicleId(vehicle) {
   return vehicle.id || vehicle._id;
@@ -400,6 +401,15 @@ function AppRoutesContent() {
                   emptyTitle="Nessun veicolo in scadenza 👌"
                   emptyDescription="Non ci sono scadenze nei prossimi 30 giorni."
                 />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="impostazioni"
+            element={
+              <ProtectedRoute>
+                <NotificationSettings />
               </ProtectedRoute>
             }
           />
