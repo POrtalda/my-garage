@@ -4,8 +4,8 @@ const cors = require("cors");
 const healthRoutes = require("./routes/healthRoutes");
 const vehicleRoutes = require("./routes/vehicleRoutes");
 const authRoutes = require("./routes/authRoutes");
-
 const notificationRoutes = require("./routes/notificationRoutes");
+const pushSubscriptionRoutes = require("./routes/pushSubscriptionRoutes");
 
 const app = express();
 
@@ -33,6 +33,7 @@ app.use("/api/health", healthRoutes);
 app.use("/api/vehicles", vehicleRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/notifications", pushSubscriptionRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
