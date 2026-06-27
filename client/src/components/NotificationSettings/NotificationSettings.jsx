@@ -35,7 +35,7 @@ function NotificationSettings() {
       } catch (err) {
         setError(
           err.message ||
-            "Non è stato possibile caricare le preferenze notifiche."
+          "Non è stato possibile caricare le preferenze notifiche."
         );
       } finally {
         setIsLoading(false);
@@ -57,7 +57,7 @@ function NotificationSettings() {
       } catch (err) {
         setPushError(
           err.message ||
-            "Non è stato possibile verificare lo stato delle notifiche push."
+          "Non è stato possibile verificare lo stato delle notifiche push."
         );
       }
     }
@@ -87,7 +87,7 @@ function NotificationSettings() {
       setEnabled(previousEnabled);
       setError(
         err.message ||
-          "Non è stato possibile aggiornare le preferenze notifiche."
+        "Non è stato possibile aggiornare le preferenze notifiche."
       );
     } finally {
       setIsSaving(false);
@@ -187,6 +187,15 @@ function NotificationSettings() {
           <p>
             Ricevi notifiche browser su PC o smartphone quando ci sono scadenze
             importanti da controllare.
+          </p>
+          <p className="notification-settings__hint">
+            Le notifiche push vanno attivate separatamente su ogni dispositivo e
+            browser. Se le hai attivate sul PC, non sono automaticamente attive anche
+            sullo smartphone.
+          </p>
+          <p className="notification-settings__hint">
+            Su Android puoi attivarle dal browser. Su iPhone potrebbe essere
+            necessario aggiungere My Garage alla schermata Home e aprirlo da lì.
           </p>
         </div>
 
