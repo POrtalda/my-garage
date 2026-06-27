@@ -1,3 +1,5 @@
+const PushSubscription = require("../models/PushSubscription");
+const { sendPushNotification } = require("../utils/pushNotifications");
 const User = require("../models/User");
 const Vehicle = require("../models/Vehicle");
 const NotificationLog = require("../models/NotificationLog");
@@ -8,6 +10,73 @@ const {
 } = require("../utils/expiryAlerts");
 
 const WEEKLY_EXPIRY_EMAIL_TYPE = "weekly-expiry-email";
+
+const sendWeeklyPushNotifications = async (user, alerts, summary) => {
+  const subscriptions = await PushSubscription.find({
+    user: user._id,
+    isActive: true,
+  });
+
+  if (subscriptions.length === 0) {
+    summary.pushSkippedNoSubscription += 1;
+    return;
+  }
+
+  const expiredCount = alerts.filter((alert) => alert.status === "expired").length;
+  const expiringCount = alerts.filter(
+    (alert) => alert.status === "expiring"
+  ).length;
+
+  const bodyParts = [];
+
+  if (expiredCount > 0) {
+    bodyParts.push(`${expiredCount} scadenze già scadute`);
+  }
+
+  if (expiringCount > 0) {
+    bodyParts.push(`${expiringCount} scadenze in arrivo`);
+  }
+
+  const payload = {
+    title: "My Garage - Scadenze veicoli",
+    body:
+      bodyParts.length > 0
+        ? `Hai ${bodyParts.join(" e ")} da controllare.`
+        : "Hai scadenze veicoli da controllare.",
+    url: "/",
+  };
+
+  await Promise.all(
+    subscriptions.map(async (subscription) => {
+      try {
+        await sendPushNotification(subscription, payload);
+
+        subscription.lastUsedAt = new Date();
+        await subscription.save();
+
+        summary.pushSent += 1;
+      } catch (error) {
+        summary.pushFailed += 1;
+
+        const statusCode = error.statusCode || error.status;
+
+        summary.failures.push({
+          user: user.email,
+          channel: "push",
+          endpoint: subscription.endpoint,
+          statusCode,
+          message: error.message,
+        });
+
+        if (statusCode === 404 || statusCode === 410) {
+          subscription.isActive = false;
+          await subscription.save();
+          summary.pushDisabledSubscriptions += 1;
+        }
+      }
+    })
+  );
+};
 
 function getCurrentWeekKey(date = new Date()) {
   const currentDate = new Date(
@@ -74,9 +143,7 @@ async function sendWeeklyExpiryEmails(req, res) {
   try {
     const periodKey = getCurrentWeekKey();
 
-    const users = await User.find().select(
-      "name email notifications"
-    );
+    const users = await User.find().select("name email notifications");
 
     const summary = {
       periodKey,
@@ -86,6 +153,10 @@ async function sendWeeklyExpiryEmails(req, res) {
       skippedAlreadySent: 0,
       skippedDisabled: 0,
       failed: 0,
+      pushSent: 0,
+      pushFailed: 0,
+      pushSkippedNoSubscription: 0,
+      pushDisabledSubscriptions: 0,
       failures: [],
     };
 
@@ -124,6 +195,8 @@ async function sendWeeklyExpiryEmails(req, res) {
           text: buildWeeklyEmailText({ user, alerts }),
         });
 
+        await sendWeeklyPushNotifications(user, alerts, summary);
+
         await NotificationLog.create({
           user: user._id,
           type: WEEKLY_EXPIRY_EMAIL_TYPE,
@@ -137,6 +210,7 @@ async function sendWeeklyExpiryEmails(req, res) {
         summary.failures.push({
           userId: user._id,
           email: user.email,
+          channel: "weekly-expiry-notification",
           message: error.message,
         });
       }
