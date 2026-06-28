@@ -2,7 +2,7 @@
 
 **My Garage** è una web app full-stack sviluppata con **React + Vite**, **Node.js/Express** e **MongoDB Atlas** per gestire veicoli e relative scadenze, come bollo, assicurazione e revisione.
 
-Il progetto nasce come applicazione portfolio e ha l’obiettivo di mostrare un flusso completo di sviluppo web moderno: frontend responsive, routing, componenti riutilizzabili, backend REST API, database MongoDB, deploy online, gestione immagini, validazione dei form, feedback utente, notifiche globali, autenticazione utenti e persistenza dati.
+Il progetto nasce come applicazione portfolio e ha l’obiettivo di mostrare un flusso completo di sviluppo web moderno: frontend responsive, routing, componenti riutilizzabili, backend REST API, database MongoDB, deploy online, gestione immagini, validazione dei form, feedback utente, notifiche globali, notifiche email/push, autenticazione utenti e persistenza dati.
 
 ---
 
@@ -83,6 +83,11 @@ Esempio risposta health check:
 * Validazione form con messaggi campo per campo
 * Feedback durante aggiunta, modifica ed eliminazione
 * Notifiche toast globali dopo login, registrazione, logout, sessione scaduta, aggiunta, modifica ed eliminazione veicolo
+* Email settimanali automatiche per scadenze scadute o in arrivo entro 30 giorni
+* Preferenze utente per attivare/disattivare le email settimanali
+* Notifiche push browser attivabili su singolo dispositivo
+* Push collegate al job settimanale delle scadenze
+* Anti-duplicato settimanale per email e push tramite `NotificationLog`
 * Sistema di notifiche riutilizzabile con `ToastContext`
 * Supporto Light/Dark mode
 * Persistenza dati su MongoDB Atlas
@@ -103,6 +108,7 @@ Esempio risposta health check:
 * React Router
 * React Icons
 * Context API
+* Service Worker per notifiche push browser
 * CSS modulare per componenti
 * localStorage per preferenza tema, fallback dati e sessione utente
 * Netlify
@@ -115,6 +121,8 @@ Esempio risposta health check:
 * MongoDB Atlas
 * JWT
 * bcryptjs
+* Nodemailer
+* web-push
 * dotenv
 * cors
 * Render
@@ -169,7 +177,8 @@ my-garage/
 │  ├─ .env.example
 │  ├─ package.json
 │  ├─ public/
-│  │  └─ _redirects
+│  │  ├─ _redirects
+│  │  └─ service-worker.js
 │  └─ src/
 │     ├─ main.jsx
 │     ├─ App.jsx
@@ -178,12 +187,15 @@ my-garage/
 │     │  └─ AppRoutes.jsx
 │     ├─ services/
 │     │  ├─ authApi.js
+│     │  ├─ notificationPreferencesApi.js
+│     │  ├─ pushNotificationsApi.js
 │     │  └─ vehiclesApi.js
 │     ├─ context/
 │     │  ├─ AuthContext.jsx
 │     │  ├─ ThemeContext
 │     │  └─ ToastContext.jsx
 │     ├─ utils/
+│     │  ├─ pushNotifications.js
 │     │  └─ vehicleDates.js
 │     └─ components/
 │        ├─ Auth/
@@ -194,6 +206,7 @@ my-garage/
 │        ├─ EmptyState/
 │        ├─ Menu/
 │        ├─ NewVehicle/
+│        ├─ NotificationSettings/
 │        ├─ StateMessage/
 │        ├─ Toast/
 │        └─ Vehicle/
@@ -232,6 +245,7 @@ my-garage/
 | `/expired`     | Veicoli con almeno una scadenza superata         |
 | `/expiring`    | Veicoli con almeno una scadenza entro 30 giorni  |
 | `/details/:id` | Dettaglio e modifica scadenze del veicolo        |
+| `/impostazioni` | Preferenze notifiche email e push del dispositivo |
 
 ---
 
@@ -267,6 +281,43 @@ Authorization: Bearer <token>
 | POST   | `/api/vehicles`     | Crea un nuovo veicolo associato all’utente  |
 | PATCH  | `/api/vehicles/:id` | Aggiorna un veicolo dell’utente autenticato |
 | DELETE | `/api/vehicles/:id` | Elimina un veicolo dell’utente autenticato  |
+
+### Preferenze notifiche
+
+Gli endpoint delle preferenze notifiche sono protetti e richiedono autenticazione tramite JWT.
+
+| Metodo | Endpoint                                | Descrizione                             |
+| ------ | --------------------------------------- | --------------------------------------- |
+| GET    | `/api/auth/me/notification-preferences` | Recupera le preferenze notifiche utente |
+| PATCH  | `/api/auth/me/notification-preferences` | Aggiorna le preferenze notifiche utente |
+
+Body valido per aggiornare le email settimanali:
+
+```json
+{
+  "weeklyExpiryEmail": {
+    "enabled": false
+  }
+}
+```
+
+### Notifiche
+
+Gli endpoint notifiche gestiscono email settimanali e push browser.
+
+| Metodo | Endpoint                                 | Descrizione                                    |
+| ------ | ---------------------------------------- | ---------------------------------------------- |
+| POST   | `/api/notifications/weekly-expiry-email` | Job interno per email e push settimanali       |
+| GET    | `/api/notifications/vapid-public-key`    | Restituisce la chiave pubblica VAPID           |
+| POST   | `/api/notifications/push-subscriptions`  | Salva la subscription push del dispositivo     |
+| DELETE | `/api/notifications/push-subscriptions`  | Disattiva la subscription push del dispositivo |
+| POST   | `/api/notifications/test-push`           | Invia una push di test all’utente autenticato  |
+
+L’endpoint settimanale è interno e richiede l’header:
+
+```text
+x-cron-secret: <INTERNAL_CRON_SECRET>
+```
 
 ---
 
@@ -378,6 +429,9 @@ Operazioni gestite:
 * persistenza dati dopo refresh pagina
 * mantenimento preferenza tema chiaro/scuro
 * mantenimento sessione utente nel browser
+* preferenze notifiche email dell’utente
+* subscription push browser per dispositivo
+* storico invii settimanali con `NotificationLog`
 
 Il `localStorage` viene usato per:
 
@@ -448,6 +502,8 @@ Il progetto include diversi miglioramenti pensati per rendere l’esperienza pi�
 * notifica dopo modifica veicolo completata
 * notifica dopo eliminazione veicolo completata
 * sistema toast responsive e compatibile con dark mode
+* pagina `/impostazioni` per gestire email settimanali e notifiche push
+* testo informativo su comportamento push per PC, smartphone e iPhone
 * menu dinamico in base allo stato di autenticazione
 * visualizzazione utente loggato nel menu
 * navigazione alla Home solo dopo salvataggio o cancellazione riusciti
@@ -482,6 +538,223 @@ Il sistema è composto da:
 * supporto Light/Dark mode
 
 Questa struttura permette di riutilizzare facilmente le notifiche anche per future funzionalità, come errori API globali o conferme di salvataggio più avanzate.
+
+---
+
+## 🔔 Sistema notifiche scadenze
+
+My Garage include un sistema notifiche completo per aiutare l’utente a non dimenticare le scadenze dei propri veicoli.
+
+Il sistema gestisce:
+
+* email settimanali automatiche
+* preferenze utente per attivare/disattivare le email
+* notifiche push browser su PC e smartphone
+* anti-duplicato settimanale per evitare invii ripetuti
+* scheduler esterno tramite cron-job.org
+
+### Email settimanali
+
+Il backend espone un endpoint interno protetto:
+
+```http
+POST /api/notifications/weekly-expiry-email
+```
+
+L’endpoint è pensato per essere chiamato da cron-job.org una volta a settimana.
+
+La chiamata richiede l’header:
+
+```http
+x-cron-secret: <INTERNAL_CRON_SECRET>
+```
+
+Il job controlla tutti gli utenti e verifica le scadenze dei veicoli:
+
+* `taxExpiry`
+* `insuranceExpiry`
+* `inspectionExpiry`
+
+Vengono generate notifiche per:
+
+* scadenze già scadute
+* scadenze in arrivo entro 30 giorni
+
+Gli utenti senza scadenze rilevanti vengono saltati.
+
+### Anti-duplicato settimanale
+
+Per evitare invii multipli nella stessa settimana viene usato il modello `NotificationLog`.
+
+Ogni invio settimanale viene salvato con:
+
+* utente
+* tipo notifica
+* `periodKey` settimanale, ad esempio `2026-W26`
+* numero di alert inviati
+
+È presente un indice unico su:
+
+```js
+{ user: 1, type: 1, periodKey: 1 }
+```
+
+In questo modo, se il job viene eseguito più volte nella stessa settimana, l’utente già notificato viene saltato.
+
+L’anti-duplicato vale sia per le email sia per le notifiche push.
+
+### Preferenze utente
+
+Ogni utente può attivare o disattivare le email settimanali dalla pagina:
+
+```text
+/impostazioni
+```
+
+Gli endpoint protetti usati dal frontend sono:
+
+```http
+GET /api/auth/me/notification-preferences
+PATCH /api/auth/me/notification-preferences
+```
+
+Body valido per aggiornare la preferenza:
+
+```json
+{
+  "weeklyExpiryEmail": {
+    "enabled": false
+  }
+}
+```
+
+Gli utenti nuovi hanno le email settimanali attive di default.
+
+Gli utenti esistenti senza campo `notifications` vengono considerati come attivi, salvo impostazione esplicita a `false`.
+
+### Notifiche push browser
+
+L’utente può attivare le notifiche push dalla pagina:
+
+```text
+/impostazioni
+```
+
+Le notifiche push sono legate al singolo dispositivo e al singolo browser.
+
+Esempio:
+
+* se vengono attivate su PC Chrome, non risultano automaticamente attive anche sullo smartphone
+* per riceverle su smartphone bisogna accedere da quel dispositivo e attivarle anche lì
+* su Android possono essere attivate dal browser
+* su iPhone potrebbe essere necessario aggiungere My Garage alla schermata Home e aprirlo come web app
+
+Il frontend registra un Service Worker:
+
+```text
+client/public/service-worker.js
+```
+
+Il Service Worker riceve le notifiche push e apre My Garage quando l’utente clicca sulla notifica.
+
+### Endpoint notifiche push
+
+Endpoint protetti usati per la gestione push:
+
+```http
+GET /api/notifications/vapid-public-key
+POST /api/notifications/push-subscriptions
+DELETE /api/notifications/push-subscriptions
+POST /api/notifications/test-push
+```
+
+Funzionamento:
+
+* `GET /vapid-public-key` restituisce la chiave pubblica VAPID
+* `POST /push-subscriptions` salva la subscription del dispositivo
+* `DELETE /push-subscriptions` disattiva la subscription del dispositivo
+* `POST /test-push` invia una notifica di test all’utente autenticato
+
+Le subscription push vengono salvate nel modello `PushSubscription`.
+
+Campi principali:
+
+* `user`
+* `endpoint`
+* `keys.p256dh`
+* `keys.auth`
+* `userAgent`
+* `isActive`
+* `lastUsedAt`
+
+Se durante l’invio push una subscription risulta non più valida, ad esempio con errore `404` o `410`, viene disattivata automaticamente.
+
+### Push nel job settimanale
+
+Quando il job settimanale trova scadenze per un utente:
+
+1. controlla se le notifiche email settimanali sono abilitate
+2. controlla se ci sono scadenze scadute o in arrivo
+3. controlla `NotificationLog` per evitare duplicati nella settimana
+4. invia l’email settimanale
+5. invia una push ai dispositivi attivi dell’utente
+6. salva il log settimanale
+
+Il summary del job include anche i dati push:
+
+```text
+pushSent
+pushFailed
+pushSkippedNoSubscription
+pushDisabledSubscriptions
+```
+
+### Variabili ambiente notifiche
+
+Variabili usate per email, cron e push:
+
+```env
+INTERNAL_CRON_SECRET=
+
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=
+SMTP_SECURE=false
+SMTP_TIMEOUT_MS=30000
+
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:myGarage-Not@hotmail.com
+```
+
+Note:
+
+* `SMTP_PASS` deve essere una SMTP key valida di Brevo
+* `SMTP_USER` è il login SMTP Brevo
+* `VAPID_PRIVATE_KEY` non deve mai essere committata
+* `VAPID_SUBJECT` deve essere una URL valida, ad esempio `mailto:myGarage-Not@hotmail.com`
+* le chiavi VAPID vanno configurate su Render come variabili ambiente
+
+### Scheduler cron-job.org
+
+Scheduler configurato:
+
+```text
+My Garage - Weekly Expiry Email
+```
+
+Configurazione:
+
+```text
+Metodo: POST
+URL: https://my-garage-api.onrender.com/api/notifications/weekly-expiry-email
+Header: x-cron-secret: <INTERNAL_CRON_SECRET>
+Frequenza: ogni lunedì alle 09:00 Europe/Rome
+```
+
+Il job invia un riepilogo agli utenti con scadenze e salta quelli già notificati nella stessa settimana.
 
 ---
 
@@ -568,6 +841,19 @@ Il middleware:
 
 Le operazioni sui veicoli sono filtrate per utente autenticato.
 
+### Sistema notifiche scadenze
+
+È stato completato il sistema notifiche per le scadenze veicoli:
+
+* email settimanali automatiche tramite Brevo/Nodemailer
+* scheduler esterno cron-job.org
+* preferenze utente nella pagina `/impostazioni`
+* notifiche push browser tramite Service Worker e Web Push
+* subscription salvate su MongoDB
+* push collegate al job settimanale delle scadenze
+* anti-duplicato settimanale condiviso tra email e push tramite `NotificationLog`
+* note informative per PC, smartphone Android e iPhone
+
 ### Gestione sessione scaduta
 
 Il frontend ora riconosce gli errori `401` e `403` restituiti dalle API veicoli.
@@ -634,6 +920,20 @@ Variabili ambiente principali lato backend:
 MONGO_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_jwt_secret
 PORT=5000
+
+INTERNAL_CRON_SECRET=your_internal_cron_secret
+
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=2525
+SMTP_USER=your_brevo_smtp_login
+SMTP_PASS=your_brevo_smtp_key
+SMTP_FROM=My Garage <your_sender_email>
+SMTP_SECURE=false
+SMTP_TIMEOUT_MS=30000
+
+VAPID_PUBLIC_KEY=your_vapid_public_key
+VAPID_PRIVATE_KEY=your_vapid_private_key
+VAPID_SUBJECT=mailto:your_sender_email
 ```
 
 ### Database MongoDB Atlas
@@ -643,6 +943,8 @@ MongoDB Atlas viene usato per salvare:
 * utenti
 * password hashate
 * veicoli associati agli utenti
+* log notifiche settimanali
+* push subscription dei dispositivi
 
 ---
 
@@ -659,6 +961,12 @@ Per il frontend:
 
 ```bash
 npm --prefix client run build
+```
+
+Per il backend:
+
+```bash
+npm --prefix server run dev
 ```
 
 Per le modifiche solo documentali viene verificato anche:
@@ -751,6 +1059,22 @@ Verificare il refresh diretto delle rotte:
 * `/details/:id`
 
 In particolare, su `/details/:id` il refresh diretto non deve mostrare temporaneamente “Veicolo non trovato” mentre i dati sono ancora in caricamento.
+
+### Checklist notifiche
+
+* aprire `/impostazioni` da utente autenticato
+* verificare il toggle delle email settimanali
+* disattivare e riattivare le email settimanali
+* attivare le notifiche push sul dispositivo corrente
+* verificare la richiesta permesso del browser
+* verificare il messaggio di conferma attivazione push
+* inviare una notifica di test tramite endpoint protetto
+* verificare la comparsa della notifica browser
+* disattivare le notifiche push dal dispositivo
+* verificare che la subscription venga disattivata
+* testare il job settimanale con `x-cron-secret`
+* verificare che `NotificationLog` impedisca doppi invii nella stessa settimana
+* verificare che email e push non vengano reinviate se l’utente è già stato notificato
 
 ### Checklist post-deploy full-stack
 
@@ -859,7 +1183,7 @@ http://localhost:5000/api/health
 
 ## 🌱 Stato del progetto
 
-Il progetto è attualmente un **MVP full-stack online stabile con autenticazione utenti, API veicoli protette e gestione della sessione scaduta**.
+Il progetto è attualmente un **MVP full-stack online stabile con autenticazione utenti, API veicoli protette, gestione della sessione scaduta e sistema notifiche completo**.
 
 Sono già presenti:
 
@@ -880,6 +1204,11 @@ Sono già presenti:
 * validazione form
 * feedback utente durante aggiunta, modifica ed eliminazione
 * notifiche toast globali dopo login, registrazione, logout, sessione scaduta, aggiunta, modifica ed eliminazione
+* email settimanali automatiche per le scadenze veicoli
+* preferenze utente per email settimanali
+* notifiche push browser attivabili per dispositivo
+* push integrate nel job settimanale
+* anti-duplicato notifiche tramite `NotificationLog`
 * sistema `ToastContext` riutilizzabile
 * supporto Light/Dark mode
 * responsive design
@@ -893,8 +1222,8 @@ Possibili sviluppi futuri:
 
 * refresh token o scadenza sessione più evoluta
 * pagina profilo utente
-* estendere le notifiche toast anche a scadenze imminenti
-* notifiche per scadenze imminenti
+* storico notifiche visibile all’utente
+* template email HTML più curato
 * dashboard più avanzata
 * gestione offline/backend non raggiungibile più evoluta
 * storage immagini con Cloudinary o Amazon S3
@@ -902,29 +1231,6 @@ Possibili sviluppi futuri:
 
 ---
 
-## Notifiche email settimanali
-
-My Garage include un sistema backend di notifiche settimanali per avvisare gli utenti quando uno o più veicoli hanno scadenze già superate o in arrivo entro 30 giorni.
-
-Il backend espone un endpoint interno:
-
-POST /api/notifications/weekly-expiry-email
-
-L’endpoint è protetto tramite header:
-
-x-cron-secret: <INTERNAL_CRON_SECRET>
-
-La chiamata viene eseguita automaticamente da uno scheduler esterno ogni lunedì alle 09:00 Europe/Rome.
-
-Per evitare invii duplicati nella stessa settimana, ogni email inviata viene registrata nel modello `NotificationLog` tramite chiave unica composta da:
-
-- user
-- type
-- periodKey
-
-Tipo notifica:
-
-weekly-expiry-email
 
 ## 👨‍💻 Autore
 
