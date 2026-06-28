@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { lookupVehicleByPlate } from "../../services/plateLookupApi";
 import "./NewVehicle.css";
 
 const initialFormData = {
   brand: "",
   model: "",
+  plate: "",
   img_url: "",
   scadenza_bollo: "",
   scadenza_assicurazione: "",
@@ -46,11 +48,20 @@ export default function NewVehicle({ onAdd, onClose }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  const [plateLookupData, setPlateLookupData] = useState(null);
+  const [isPlateLookupLoading, setIsPlateLookupLoading] = useState(false);
+  const [plateLookupError, setPlateLookupError] = useState("");
+
   function handleChange(e) {
     const { name, value } = e.target;
 
     setFormData({ ...formData, [name]: value });
     setSubmitError("");
+
+    if (name === "plate") {
+      setPlateLookupError("");
+      setPlateLookupData(null);
+    }
 
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
@@ -100,6 +111,46 @@ export default function NewVehicle({ onAdd, onClose }) {
     reader.readAsDataURL(file);
   }
 
+  async function handlePlateLookup() {
+    const plate = formData.plate.trim();
+
+    if (!plate) {
+      setPlateLookupData(null);
+      setPlateLookupError("Inserisci una targa prima di cercare i dati.");
+      setErrors((prev) => ({
+        ...prev,
+        plate: "Inserisci una targa prima di cercare i dati.",
+      }));
+      return;
+    }
+
+    setIsPlateLookupLoading(true);
+    setPlateLookupError("");
+    setPlateLookupData(null);
+    setSubmitError("");
+
+    try {
+      const data = await lookupVehicleByPlate(plate);
+
+      setFormData((prev) => ({
+        ...prev,
+        plate: data.plate || prev.plate,
+      }));
+
+      setPlateLookupData(data);
+
+      if (errors.plate) {
+        setErrors((prev) => ({ ...prev, plate: "" }));
+      }
+    } catch (err) {
+      setPlateLookupError(
+        err.message || "Non è stato possibile cercare i dati dalla targa."
+      );
+    } finally {
+      setIsPlateLookupLoading(false);
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -119,6 +170,7 @@ export default function NewVehicle({ onAdd, onClose }) {
         ...formData,
         brand: formData.brand.trim(),
         model: formData.model.trim(),
+        plate: formData.plate.trim().toUpperCase(),
         img_url: formData.img_url.trim(),
         id: Date.now(),
       });
@@ -161,6 +213,67 @@ export default function NewVehicle({ onAdd, onClose }) {
           />
           {errors.model && <span className="field-error">{errors.model}</span>}
         </label>
+
+        <div className="plate-lookup">
+          <label>
+            Targa
+            <input
+              type="text"
+              name="plate"
+              value={formData.plate}
+              onChange={handleChange}
+              placeholder="Es. AB123CD"
+              className={errors.plate ? "input-error" : ""}
+            />
+            {errors.plate && (
+              <span className="field-error">{errors.plate}</span>
+            )}
+          </label>
+
+          <button
+            type="button"
+            className="plate-lookup__button"
+            onClick={handlePlateLookup}
+            disabled={isPlateLookupLoading || isSubmitting}
+          >
+            {isPlateLookupLoading ? "Ricerca..." : "Cerca dati da targa"}
+          </button>
+
+          {plateLookupError && (
+            <p className="form-error">{plateLookupError}</p>
+          )}
+
+          {plateLookupData && (
+            <div className="plate-lookup__result">
+              <h3>Dati da targa</h3>
+              <p>{plateLookupData.message}</p>
+
+              <p>
+                <strong>Targa verificata:</strong> {plateLookupData.plate}
+              </p>
+
+              <div className="plate-lookup__items">
+                {[plateLookupData.insurance, plateLookupData.inspection, plateLookupData.tax]
+                  .filter(Boolean)
+                  .map((item) => (
+                    <div className="plate-lookup__item" key={item.label}>
+                      <h4>{item.label}</h4>
+                      <p>{item.message}</p>
+                      {item.officialUrl && (
+                        <a
+                          href={item.officialUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Apri servizio ufficiale
+                        </a>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         <label>
           Carica immagine dal dispositivo
@@ -225,6 +338,7 @@ export default function NewVehicle({ onAdd, onClose }) {
         </label>
 
         {submitError && <p className="form-error">{submitError}</p>}
+
         <div className="form-actions">
           <button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Salvataggio..." : "Conferma"}

@@ -6,6 +6,7 @@ const vehicleRoutes = require("./routes/vehicleRoutes");
 const authRoutes = require("./routes/authRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const pushSubscriptionRoutes = require("./routes/pushSubscriptionRoutes");
+const plateLookupRoutes = require("./routes/plateLookupRoutes");
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/health", healthRoutes);
 app.use("/api/vehicles", vehicleRoutes);
+app.use("/api/vehicles", plateLookupRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/notifications", pushSubscriptionRoutes);
