@@ -276,3 +276,58 @@
     width: 100%;
   }
 }
+
+.plate-lookup-guided-flow {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.plate-lookup-step {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color, #d8dee4);
+  border-radius: 12px;
+  background: var(--card-background, #ffffff);
+}
+
+.plate-lookup-step-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.plate-lookup-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 999px;
+  font-weight: 700;
+  background: var(--primary-color, #2563eb);
+  color: #ffffff;
+}
+
+.plate-lookup-step h4 {
+  margin: 0 0 0.25rem;
+}
+
+.plate-lookup-step p {
+  margin: 0;
+}
+
+.plate-lookup-link {
+  justify-self: start;
+}
+
+.plate-lookup-apply-button {
+  margin-top: 1rem;
+}
+
+.plate-lookup-applied-message {
+  margin-top: 0.75rem;
+  font-weight: 600;
+}

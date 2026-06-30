@@ -52,6 +52,15 @@ export default function NewVehicle({ onAdd, onClose }) {
   const [isPlateLookupLoading, setIsPlateLookupLoading] = useState(false);
   const [plateLookupError, setPlateLookupError] = useState("");
 
+  const [assistedDeadlines, setAssistedDeadlines] = useState({
+    scadenza_bollo: "",
+    scadenza_assicurazione: "",
+    scadenza_revisione: "",
+  });
+
+  const [assistedDeadlinesApplied, setAssistedDeadlinesApplied] =
+    useState(false);
+
   function handleChange(e) {
     const { name, value } = e.target;
 
@@ -61,6 +70,12 @@ export default function NewVehicle({ onAdd, onClose }) {
     if (name === "plate") {
       setPlateLookupError("");
       setPlateLookupData(null);
+      setAssistedDeadlines({
+        scadenza_bollo: "",
+        scadenza_assicurazione: "",
+        scadenza_revisione: "",
+      });
+      setAssistedDeadlinesApplied(false);
     }
 
     if (errors[name]) {
@@ -128,6 +143,12 @@ export default function NewVehicle({ onAdd, onClose }) {
     setPlateLookupError("");
     setPlateLookupData(null);
     setSubmitError("");
+    setAssistedDeadlines({
+      scadenza_bollo: "",
+      scadenza_assicurazione: "",
+      scadenza_revisione: "",
+    });
+    setAssistedDeadlinesApplied(false);
 
     try {
       const data = await lookupVehicleByPlate(plate);
@@ -149,6 +170,44 @@ export default function NewVehicle({ onAdd, onClose }) {
     } finally {
       setIsPlateLookupLoading(false);
     }
+  }
+
+  function handleAssistedDeadlineChange(field, value) {
+    setAssistedDeadlines((prevDeadlines) => ({
+      ...prevDeadlines,
+      [field]: value,
+    }));
+
+    setAssistedDeadlinesApplied(false);
+  }
+
+  function handleApplyAssistedDeadlines() {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      scadenza_bollo:
+        assistedDeadlines.scadenza_bollo || prevFormData.scadenza_bollo,
+      scadenza_assicurazione:
+        assistedDeadlines.scadenza_assicurazione ||
+        prevFormData.scadenza_assicurazione,
+      scadenza_revisione:
+        assistedDeadlines.scadenza_revisione ||
+        prevFormData.scadenza_revisione,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      scadenza_bollo: assistedDeadlines.scadenza_bollo
+        ? ""
+        : prevErrors.scadenza_bollo,
+      scadenza_assicurazione: assistedDeadlines.scadenza_assicurazione
+        ? ""
+        : prevErrors.scadenza_assicurazione,
+      scadenza_revisione: assistedDeadlines.scadenza_revisione
+        ? ""
+        : prevErrors.scadenza_revisione,
+    }));
+
+    setAssistedDeadlinesApplied(true);
   }
 
   async function handleSubmit(e) {
@@ -184,6 +243,11 @@ export default function NewVehicle({ onAdd, onClose }) {
       setIsSubmitting(false);
     }
   }
+
+  const hasAssistedDeadlines =
+    assistedDeadlines.scadenza_bollo ||
+    assistedDeadlines.scadenza_assicurazione ||
+    assistedDeadlines.scadenza_revisione;
 
   return (
     <div className="new-vehicle">
@@ -245,32 +309,138 @@ export default function NewVehicle({ onAdd, onClose }) {
 
           {plateLookupData && (
             <div className="plate-lookup__result">
-              <h3>Dati da targa</h3>
-              <p>{plateLookupData.message}</p>
+              <h3>Assistente scadenze da targa</h3>
+
+              <p className="plate-lookup__message">
+                {plateLookupData.message}
+              </p>
 
               <p>
                 <strong>Targa verificata:</strong> {plateLookupData.plate}
               </p>
 
-              <div className="plate-lookup__items">
-                {[plateLookupData.insurance, plateLookupData.inspection, plateLookupData.tax]
-                  .filter(Boolean)
-                  .map((item) => (
-                    <div className="plate-lookup__item" key={item.label}>
-                      <h4>{item.label}</h4>
-                      <p>{item.message}</p>
-                      {item.officialUrl && (
-                        <a
-                          href={item.officialUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Apri servizio ufficiale
-                        </a>
-                      )}
+              <div className="plate-lookup__guided-flow">
+                <div className="plate-lookup__step">
+                  <div className="plate-lookup__step-header">
+                    <span className="plate-lookup__step-number">1</span>
+                    <div>
+                      <h4>{plateLookupData.tax.label}</h4>
+                      <p>{plateLookupData.tax.message}</p>
                     </div>
-                  ))}
+                  </div>
+
+                  {plateLookupData.tax.officialUrl && (
+                    <a
+                      href={plateLookupData.tax.officialUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="plate-lookup__link"
+                    >
+                      Apri servizio ACI
+                    </a>
+                  )}
+
+                  <label>
+                    Scadenza bollo trovata
+                    <input
+                      type="date"
+                      value={assistedDeadlines.scadenza_bollo}
+                      onChange={(event) =>
+                        handleAssistedDeadlineChange(
+                          "scadenza_bollo",
+                          event.target.value
+                        )
+                      }
+                    />
+                  </label>
+                </div>
+
+                <div className="plate-lookup__step">
+                  <div className="plate-lookup__step-header">
+                    <span className="plate-lookup__step-number">2</span>
+                    <div>
+                      <h4>{plateLookupData.insurance.label}</h4>
+                      <p>{plateLookupData.insurance.message}</p>
+                    </div>
+                  </div>
+
+                  {plateLookupData.insurance.officialUrl && (
+                    <a
+                      href={plateLookupData.insurance.officialUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="plate-lookup__link"
+                    >
+                      Apri verifica RCA
+                    </a>
+                  )}
+
+                  <label>
+                    Scadenza assicurazione trovata
+                    <input
+                      type="date"
+                      value={assistedDeadlines.scadenza_assicurazione}
+                      onChange={(event) =>
+                        handleAssistedDeadlineChange(
+                          "scadenza_assicurazione",
+                          event.target.value
+                        )
+                      }
+                    />
+                  </label>
+                </div>
+
+                <div className="plate-lookup__step">
+                  <div className="plate-lookup__step-header">
+                    <span className="plate-lookup__step-number">3</span>
+                    <div>
+                      <h4>{plateLookupData.inspection.label}</h4>
+                      <p>{plateLookupData.inspection.message}</p>
+                    </div>
+                  </div>
+
+                  {plateLookupData.inspection.officialUrl && (
+                    <a
+                      href={plateLookupData.inspection.officialUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="plate-lookup__link"
+                    >
+                      Apri verifica revisione
+                    </a>
+                  )}
+
+                  <label>
+                    Scadenza revisione trovata
+                    <input
+                      type="date"
+                      value={assistedDeadlines.scadenza_revisione}
+                      onChange={(event) =>
+                        handleAssistedDeadlineChange(
+                          "scadenza_revisione",
+                          event.target.value
+                        )
+                      }
+                    />
+                  </label>
+                </div>
               </div>
+
+              <button
+                type="button"
+                className="plate-lookup__apply-button"
+                onClick={handleApplyAssistedDeadlines}
+                disabled={!hasAssistedDeadlines || isSubmitting}
+              >
+                Applica scadenze al form
+              </button>
+
+              {assistedDeadlinesApplied && (
+                <p className="plate-lookup__applied-message">
+                  Scadenze applicate al form. Ora puoi salvare il veicolo e My
+                  Garage ti avviserà prima delle prossime scadenze.
+                </p>
+              )}
             </div>
           )}
         </div>
