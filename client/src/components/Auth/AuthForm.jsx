@@ -10,6 +10,7 @@ function AuthForm({
   switchText,
   switchActionLabel,
   onSwitch,
+  demoInfo,
 }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -72,6 +73,29 @@ function AuthForm({
           <h1>{title}</h1>
           <p>{description}</p>
         </div>
+        {demoInfo && (
+          <div className="auth-demo-box">
+            <h2>Accesso demo</h2>
+            <p>
+              Puoi provare My Garage senza registrarti. Usa le credenziali demo
+              oppure entra direttamente con il pulsante qui sotto.
+            </p>
+
+            <div className="auth-demo-credentials">
+              <span>Email: <strong>{demoInfo.email}</strong></span>
+              <span>Password: <strong>{demoInfo.password}</strong></span>
+            </div>
+
+            <button
+              type="button"
+              className="auth-demo-button"
+              onClick={demoInfo.onDemoLogin}
+              disabled={isSubmitting}
+            >
+              Entra come demo
+            </button>
+          </div>
+        )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {isRegister && (

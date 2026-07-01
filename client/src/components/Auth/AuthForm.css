@@ -151,3 +151,59 @@ body.dark .auth-icon {
     font-size: 1.5rem;
   }
 }
+
+.auth-demo-box {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1.4rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
+}
+
+.auth-demo-box h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.auth-demo-box p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.auth-demo-credentials {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+.auth-demo-button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1rem;
+  background: #1d4ed8;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.auth-demo-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+body.dark .auth-demo-box {
+  background: #172554;
+  border-color: #2563eb;
+  color: #dbeafe;
+}
+
+body.dark .auth-demo-credentials {
+  background: rgba(15, 23, 42, 0.7);
+}
