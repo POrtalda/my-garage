@@ -28,34 +28,22 @@ export default function Menu({ title, onAddVehicle }) {
 
   return (
     <>
-      <ul className={isDarkMode ? "menu menu_dark" : "menu menulight"}>
-        <li>
-          <NavLink to="/">Home</NavLink>
-        </li>
-        <li>
-          <NavLink to="/expired">Scaduti</NavLink>
-        </li>
-        <li>
-          <NavLink to="/expiring">In Scadenza</NavLink>
-        </li>
-
-        {isAuthenticated && (
+      {isAuthenticated && (
+        <ul className={isDarkMode ? "menu menu_dark" : "menu menulight"}>
+          <li>
+            <NavLink to="/">Home</NavLink>
+          </li>
+          <li>
+            <NavLink to="/expired">Scaduti</NavLink>
+          </li>
+          <li>
+            <NavLink to="/expiring">In Scadenza</NavLink>
+          </li>
           <li>
             <NavLink to="/impostazioni">Impostazioni</NavLink>
           </li>
-        )}
-
-        {!isAuthenticated && (
-          <>
-            <li>
-              <NavLink to="/login">Login</NavLink>
-            </li>
-            <li>
-              <NavLink to="/register">Registrati</NavLink>
-            </li>
-          </>
-        )}
-      </ul>
+        </ul>
+      )}
 
       <h1>{title}</h1>
 
