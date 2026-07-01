@@ -13,7 +13,8 @@ const app = express();
 const allowedOrigins = [
   "https://my-garage-expiration.netlify.app",
   "http://localhost:5173",
-];
+  process.env.CLIENT_URL,
+].filter(Boolean);
 
 app.use(
   cors({
