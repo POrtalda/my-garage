@@ -32,6 +32,19 @@ async function getVehicleById(req, res) {
 }
 
 async function createVehicle(req, res) {
+  if (process.env.DEMO_MODE === "true") {
+    const demoMaxVehicles = Number(process.env.DEMO_MAX_VEHICLES || 5);
+    const vehicleCount = await Vehicle.countDocuments({
+      user: req.user._id,
+    });
+
+    if (vehicleCount >= demoMaxVehicles) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Limite demo raggiunto: puoi creare al massimo ${demoMaxVehicles} veicoli.`,
+      });
+    }
+  }
   const vehicle = await Vehicle.create({
     ...req.body,
     user: req.user._id,

@@ -20,6 +20,16 @@ function sanitizeUser(user) {
 
 async function registerUser(req, res) {
   try {
+    if (
+      process.env.DEMO_MODE === "true" &&
+      process.env.DEMO_REGISTRATION_ENABLED !== "true"
+    ) {
+      return res.status(403).json({
+        message:
+          "La registrazione è disabilitata nell'ambiente demo. Usa l'account demo fornito.",
+      });
+    }
+
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
