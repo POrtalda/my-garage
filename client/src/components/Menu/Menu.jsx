@@ -57,7 +57,7 @@ export default function Menu({ title, onAddVehicle }) {
 
         <DarkLight />
 
-        {isAuthenticated ? (
+        {isAuthenticated && (
           <>
             <button type="button" onClick={() => setShowModal(true)}>
               Nuovo ➕
@@ -71,10 +71,6 @@ export default function Menu({ title, onAddVehicle }) {
               Logout
             </button>
           </>
-        ) : (
-          <button type="button" onClick={() => navigate("/login")}>
-            Accedi
-          </button>
         )}
       </div>
 
