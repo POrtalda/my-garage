@@ -65,6 +65,30 @@ function AuthForm({
     }
   };
 
+  const handleDemoLogin = async () => {
+    if (!demoInfo) {
+      return;
+    }
+
+    const demoFormData = {
+      name: "",
+      email: demoInfo.email,
+      password: demoInfo.password,
+    };
+
+    setFormError("");
+    setFormData(demoFormData);
+    setIsSubmitting(true);
+
+    try {
+      await onSubmit(demoFormData);
+    } catch (error) {
+      setFormError(error.message || "Accesso demo non riuscito. Riprova.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section className="auth-page">
       <div className="auth-card">
@@ -89,10 +113,10 @@ function AuthForm({
             <button
               type="button"
               className="auth-demo-button"
-              onClick={demoInfo.onDemoLogin}
+              onClick={handleDemoLogin}
               disabled={isSubmitting}
             >
-              Entra come demo
+              {isSubmitting ? "⏳ Accesso demo..." : "Entra come demo"}
             </button>
           </div>
         )}
