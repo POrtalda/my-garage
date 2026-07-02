@@ -235,9 +235,10 @@ export default function NewVehicle({ onAdd, onClose }) {
       });
 
       onClose();
-    } catch {
+    } catch (error) {
       setSubmitError(
-        "Non è stato possibile aggiungere il veicolo. Controlla la connessione e riprova."
+        error.message ||
+          "Non è stato possibile aggiungere il veicolo. Controlla la connessione e riprova."
       );
     } finally {
       setIsSubmitting(false);
