@@ -27,10 +27,6 @@ function Login() {
     navigate("/", { replace: true });
   };
 
-  const handleDemoLogin = async () => {
-    await handleLogin(demoCredentials);
-  };
-
   return (
     <AuthForm
       title={isDemoMode ? "Accedi alla demo" : "Accedi"}
@@ -49,7 +45,6 @@ function Login() {
           ? {
               email: demoCredentials.email,
               password: demoCredentials.password,
-              onDemoLogin: handleDemoLogin,
             }
           : null
       }
