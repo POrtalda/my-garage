@@ -35,7 +35,7 @@ const lookupVehicleByPlate = async (req, res) => {
             message:
                 "Verifica se il veicolo risulta assicurato tramite il servizio ufficiale del Portale dell'Automobilista.",
             officialUrl:
-                "https://www.ilportaledellautomobilista.it/web/portale-automobilista/ext/verifica-copertura-rc?_CoperturaRC_WAR_ServiziAlCittadinowar100SNAPSHOTesercizio_action=sceltaTipologia&p_p_col_count=1&p_p_col_id=_118_INSTANCE_hoIzOCy6I6vu__column-2&p_p_id=CoperturaRC_WAR_ServiziAlCittadinowar100SNAPSHOTesercizio&p_p_lifecycle=0&p_p_mode=view&p_p_state=normal",
+                "https://www.ilportaledellautomobilista.it/web/portale-automobilista/cittadino-verifica-copertura-rc",
         },
         inspection: {
             status: "unknown",
