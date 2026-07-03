@@ -107,3 +107,12 @@ body.dark .menu-user {
     text-align: center;
   }
 }
+
+.guest-title {
+  text-align: center;
+  margin-top: 1.2rem;
+}
+
+.guest-actions {
+  justify-content: center;
+}
