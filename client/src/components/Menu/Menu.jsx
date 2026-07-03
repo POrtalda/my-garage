@@ -1,7 +1,7 @@
-import { NavLink, useLocation, useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import "./Menu.css";
 import DarkLight from "../DarkLight/DarkLight";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import ThemeContext from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -12,7 +12,6 @@ export default function Menu({ title, onAddVehicle }) {
   const { user, isAuthenticated, logout } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
   const [showModal, setShowModal] = useState(false);
 
   const handleLogout = () => {
@@ -27,30 +26,42 @@ export default function Menu({ title, onAddVehicle }) {
     navigate("/login", { replace: true });
   };
 
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
   const handleCloseModal = () => {
     setShowModal(false);
     navigate("/", { replace: false });
   };
 
-  useEffect(() => {
+  const closeModalOnly = () => {
     setShowModal(false);
-  }, [location.pathname]);
+  };
 
   return (
     <>
       {isAuthenticated && (
         <ul className={isDarkMode ? "menu menu_dark" : "menu menulight"}>
           <li>
-            <NavLink to="/">Home</NavLink>
+            <NavLink to="/" onClick={closeModalOnly}>
+              Home
+            </NavLink>
           </li>
           <li>
-            <NavLink to="/expired">Scaduti</NavLink>
+            <NavLink to="/expired" onClick={closeModalOnly}>
+              Scaduti
+            </NavLink>
           </li>
           <li>
-            <NavLink to="/expiring">In Scadenza</NavLink>
+            <NavLink to="/expiring" onClick={closeModalOnly}>
+              In Scadenza
+            </NavLink>
           </li>
           <li>
-            <NavLink to="/impostazioni">Impostazioni</NavLink>
+            <NavLink to="/impostazioni" onClick={closeModalOnly}>
+              Impostazioni
+            </NavLink>
           </li>
         </ul>
       )}
@@ -71,7 +82,7 @@ export default function Menu({ title, onAddVehicle }) {
 
         {isAuthenticated && (
           <>
-            <button type="button" onClick={() => setShowModal(true)}>
+            <button type="button" onClick={handleOpenModal}>
               Nuovo ➕
             </button>
 
@@ -87,10 +98,7 @@ export default function Menu({ title, onAddVehicle }) {
       </div>
 
       {showModal && (
-        <NewVehicle
-          onAdd={onAddVehicle}
-          onClose={handleCloseModal}
-        />
+        <NewVehicle onAdd={onAddVehicle} onClose={handleCloseModal} />
       )}
     </>
   );
