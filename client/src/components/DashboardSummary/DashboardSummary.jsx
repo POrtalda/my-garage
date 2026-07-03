@@ -1,66 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
-import { parseDate } from "../../utils/vehicleDates";
 import "./DashboardSummary.css";
-
-const expiryFields = [
-  {
-    key: "scadenza_bollo",
-    label: "Bollo",
-  },
-  {
-    key: "scadenza_assicurazione",
-    label: "Assicurazione",
-  },
-  {
-    key: "scadenza_revisione",
-    label: "Revisione",
-  },
-];
-
-function formatDate(date) {
-  return new Intl.DateTimeFormat("it-IT", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
-}
-
-function getVehicleName(vehicle) {
-  return [vehicle.brand, vehicle.model].filter(Boolean).join(" ") || "Veicolo";
-}
-
-function getNextExpiry(vehicles = []) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const expiries = vehicles.flatMap((vehicle) =>
-    expiryFields
-      .map((field) => {
-        const date = parseDate(vehicle[field.key]);
-
-        if (!date) {
-          return null;
-        }
-
-        date.setHours(0, 0, 0, 0);
-
-        return {
-          vehicle,
-          type: field.label,
-          date,
-          isExpired: date < today,
-        };
-      })
-      .filter(Boolean)
-  );
-
-  if (expiries.length === 0) {
-    return null;
-  }
-
-  return expiries.sort((expiryA, expiryB) => expiryA.date - expiryB.date)[0];
-}
 
 export default function DashboardSummary({ vehicles }) {
   const navigate = useNavigate();
@@ -97,14 +37,11 @@ export default function DashboardSummary({ vehicles }) {
         !vehicle.expiring_revision
     ).length;
 
-    const nextExpiry = getNextExpiry(safeVehicles);
-
     return {
       total,
       expired,
       expiring,
       ok,
-      nextExpiry,
     };
   }, [vehicles]);
 
@@ -143,48 +80,6 @@ export default function DashboardSummary({ vehicles }) {
           <strong>{dashboardSummary.ok}</strong>
         </div>
       </div>
-
-      <button
-        type="button"
-        className="dashboard-next-expiry"
-        onClick={() => goToVehicleList("/")}
-      >
-        <div>
-          <span className="dashboard-summary-label">Prossima scadenza</span>
-
-          {dashboardSummary.nextExpiry ? (
-            <>
-              <h2>{getVehicleName(dashboardSummary.nextExpiry.vehicle)}</h2>
-              <p>
-                {dashboardSummary.nextExpiry.type} ·{" "}
-                {formatDate(dashboardSummary.nextExpiry.date)}
-              </p>
-            </>
-          ) : (
-            <>
-              <h2>Nessuna scadenza da mostrare</h2>
-              <p>
-                Aggiungi un veicolo per iniziare a monitorare bollo,
-                assicurazione e revisione.
-              </p>
-            </>
-          )}
-        </div>
-
-        {dashboardSummary.nextExpiry && (
-          <span
-            className={
-              dashboardSummary.nextExpiry.isExpired
-                ? "dashboard-next-expiry-badge dashboard-next-expiry-badge--expired"
-                : "dashboard-next-expiry-badge"
-            }
-          >
-            {dashboardSummary.nextExpiry.isExpired
-              ? "Scaduta"
-              : "Da controllare"}
-          </span>
-        )}
-      </button>
     </section>
   );
 }
