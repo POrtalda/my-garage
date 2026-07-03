@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useNavigate } from "react-router";
 import { parseDate } from "../../utils/vehicleDates";
 import "./DashboardSummary.css";
 
@@ -62,6 +63,12 @@ function getNextExpiry(vehicles = []) {
 }
 
 export default function DashboardSummary({ vehicles }) {
+  const navigate = useNavigate();
+
+  const goToVehicleList = (path) => {
+    navigate(path, { state: { scrollToVehicles: true } });
+  };
+
   const dashboardSummary = useMemo(() => {
     const safeVehicles = vehicles ?? [];
     const total = safeVehicles.length;
@@ -104,20 +111,32 @@ export default function DashboardSummary({ vehicles }) {
   return (
     <section className="dashboard-summary" aria-label="Riepilogo veicoli">
       <div className="dashboard-summary-grid">
-        <div className="dashboard-summary-card">
+        <button
+          type="button"
+          className="dashboard-summary-card"
+          onClick={() => goToVehicleList("/")}
+        >
           <span className="dashboard-summary-label">Veicoli totali</span>
           <strong>{dashboardSummary.total}</strong>
-        </div>
+        </button>
 
-        <div className="dashboard-summary-card dashboard-summary-card--expired">
+        <button
+          type="button"
+          className="dashboard-summary-card dashboard-summary-card--expired"
+          onClick={() => goToVehicleList("/expired")}
+        >
           <span className="dashboard-summary-label">Scaduti</span>
           <strong>{dashboardSummary.expired}</strong>
-        </div>
+        </button>
 
-        <div className="dashboard-summary-card dashboard-summary-card--expiring">
+        <button
+          type="button"
+          className="dashboard-summary-card dashboard-summary-card--expiring"
+          onClick={() => goToVehicleList("/expiring")}
+        >
           <span className="dashboard-summary-label">In scadenza</span>
           <strong>{dashboardSummary.expiring}</strong>
-        </div>
+        </button>
 
         <div className="dashboard-summary-card dashboard-summary-card--ok">
           <span className="dashboard-summary-label">Tutto ok</span>
@@ -125,7 +144,11 @@ export default function DashboardSummary({ vehicles }) {
         </div>
       </div>
 
-      <article className="dashboard-next-expiry">
+      <button
+        type="button"
+        className="dashboard-next-expiry"
+        onClick={() => goToVehicleList("/")}
+      >
         <div>
           <span className="dashboard-summary-label">Prossima scadenza</span>
 
@@ -156,10 +179,12 @@ export default function DashboardSummary({ vehicles }) {
                 : "dashboard-next-expiry-badge"
             }
           >
-            {dashboardSummary.nextExpiry.isExpired ? "Scaduta" : "Da controllare"}
+            {dashboardSummary.nextExpiry.isExpired
+              ? "Scaduta"
+              : "Da controllare"}
           </span>
         )}
-      </article>
+      </button>
     </section>
   );
 }

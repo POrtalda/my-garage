@@ -209,3 +209,24 @@ body.dark .dashboard-next-expiry-badge--expired {
     border-top: 5px solid #1976d2;
   }
 }
+
+.dashboard-summary-card,
+.dashboard-next-expiry {
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dashboard-summary-card {
+  border-left: 6px solid #4db6ac;
+}
+
+.dashboard-next-expiry {
+  width: 100%;
+  border-left: 6px solid #1976d2;
+}
+
+.dashboard-summary-card--ok {
+  cursor: default;
+}
