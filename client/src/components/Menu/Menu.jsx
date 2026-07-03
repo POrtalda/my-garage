@@ -1,7 +1,7 @@
-import { NavLink, useNavigate } from "react-router";
+import { NavLink, useLocation, useNavigate } from "react-router";
 import "./Menu.css";
 import DarkLight from "../DarkLight/DarkLight";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ThemeContext from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -12,6 +12,7 @@ export default function Menu({ title, onAddVehicle }) {
   const { user, isAuthenticated, logout } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showModal, setShowModal] = useState(false);
 
   const handleLogout = () => {
@@ -26,40 +27,39 @@ export default function Menu({ title, onAddVehicle }) {
     navigate("/login", { replace: true });
   };
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+    navigate("/", { replace: false });
+  };
+
+  useEffect(() => {
+    setShowModal(false);
+  }, [location.pathname]);
+
   return (
     <>
-      <ul className={isDarkMode ? "menu menu_dark" : "menu menulight"}>
-        <li>
-          <NavLink to="/">Home</NavLink>
-        </li>
-        <li>
-          <NavLink to="/expired">Scaduti</NavLink>
-        </li>
-        <li>
-          <NavLink to="/expiring">In Scadenza</NavLink>
-        </li>
-
-        {isAuthenticated && (
+      {isAuthenticated && (
+        <ul className={isDarkMode ? "menu menu_dark" : "menu menulight"}>
+          <li>
+            <NavLink to="/">Home</NavLink>
+          </li>
+          <li>
+            <NavLink to="/expired">Scaduti</NavLink>
+          </li>
+          <li>
+            <NavLink to="/expiring">In Scadenza</NavLink>
+          </li>
           <li>
             <NavLink to="/impostazioni">Impostazioni</NavLink>
           </li>
-        )}
+        </ul>
+      )}
 
-        {!isAuthenticated && (
-          <>
-            <li>
-              <NavLink to="/login">Login</NavLink>
-            </li>
-            <li>
-              <NavLink to="/register">Registrati</NavLink>
-            </li>
-          </>
-        )}
-      </ul>
+      <h1 className={isAuthenticated ? "" : "guest-title"}>{title}</h1>
 
-      <h1>{title}</h1>
-
-      <div className="menu-actions">
+      <div
+        className={isAuthenticated ? "menu-actions" : "menu-actions guest-actions"}
+      >
         {isAuthenticated && (
           <div className="menu-user">
             <span className="menu-user-label">Utente</span>
@@ -69,7 +69,7 @@ export default function Menu({ title, onAddVehicle }) {
 
         <DarkLight />
 
-        {isAuthenticated ? (
+        {isAuthenticated && (
           <>
             <button type="button" onClick={() => setShowModal(true)}>
               Nuovo ➕
@@ -83,17 +83,13 @@ export default function Menu({ title, onAddVehicle }) {
               Logout
             </button>
           </>
-        ) : (
-          <button type="button" onClick={() => navigate("/login")}>
-            Accedi
-          </button>
         )}
       </div>
 
       {showModal && (
         <NewVehicle
           onAdd={onAddVehicle}
-          onClose={() => setShowModal(false)}
+          onClose={handleCloseModal}
         />
       )}
     </>

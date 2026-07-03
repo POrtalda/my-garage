@@ -10,6 +10,7 @@ function AuthForm({
   switchText,
   switchActionLabel,
   onSwitch,
+  demoInfo,
 }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -64,6 +65,30 @@ function AuthForm({
     }
   };
 
+  const handleDemoLogin = async () => {
+    if (!demoInfo) {
+      return;
+    }
+
+    const demoFormData = {
+      name: "",
+      email: demoInfo.email,
+      password: demoInfo.password,
+    };
+
+    setFormError("");
+    setFormData(demoFormData);
+    setIsSubmitting(true);
+
+    try {
+      await onSubmit(demoFormData);
+    } catch (error) {
+      setFormError(error.message || "Accesso demo non riuscito. Riprova.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section className="auth-page">
       <div className="auth-card">
@@ -72,6 +97,29 @@ function AuthForm({
           <h1>{title}</h1>
           <p>{description}</p>
         </div>
+        {demoInfo && (
+          <div className="auth-demo-box">
+            <h2>Accesso demo</h2>
+            <p>
+              Puoi provare My Garage senza registrarti. Usa le credenziali demo
+              oppure entra direttamente con il pulsante qui sotto.
+            </p>
+
+            <div className="auth-demo-credentials">
+              <span>Email: <strong>{demoInfo.email}</strong></span>
+              <span>Password: <strong>{demoInfo.password}</strong></span>
+            </div>
+
+            <button
+              type="button"
+              className="auth-demo-button"
+              onClick={handleDemoLogin}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "⏳ Accesso demo..." : "Entra come demo"}
+            </button>
+          </div>
+        )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {isRegister && (

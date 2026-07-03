@@ -35,7 +35,7 @@ function isSameVehicle(vehicleA, vehicleB) {
 }
 
 function isAuthError(error) {
-  return error?.status === 401 || error?.status === 403;
+  return error?.status === 401;
 }
 
 function getStoredAuthToken() {
