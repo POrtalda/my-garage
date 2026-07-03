@@ -26,28 +26,51 @@ export default function Menu({ title, onAddVehicle }) {
     navigate("/login", { replace: true });
   };
 
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    navigate("/", { replace: false });
+  };
+
+  const closeModalOnly = () => {
+    setShowModal(false);
+  };
+
   return (
     <>
       {isAuthenticated && (
         <ul className={isDarkMode ? "menu menu_dark" : "menu menulight"}>
           <li>
-            <NavLink to="/">Home</NavLink>
+            <NavLink to="/" onClick={closeModalOnly}>
+              Home
+            </NavLink>
           </li>
           <li>
-            <NavLink to="/expired">Scaduti</NavLink>
+            <NavLink to="/expired" onClick={closeModalOnly}>
+              Scaduti
+            </NavLink>
           </li>
           <li>
-            <NavLink to="/expiring">In Scadenza</NavLink>
+            <NavLink to="/expiring" onClick={closeModalOnly}>
+              In Scadenza
+            </NavLink>
           </li>
           <li>
-            <NavLink to="/impostazioni">Impostazioni</NavLink>
+            <NavLink to="/impostazioni" onClick={closeModalOnly}>
+              Impostazioni
+            </NavLink>
           </li>
         </ul>
       )}
 
-      <h1>{title}</h1>
+      <h1 className={isAuthenticated ? "" : "guest-title"}>{title}</h1>
 
-      <div className="menu-actions">
+      <div
+        className={isAuthenticated ? "menu-actions" : "menu-actions guest-actions"}
+      >
         {isAuthenticated && (
           <div className="menu-user">
             <span className="menu-user-label">Utente</span>
@@ -59,7 +82,7 @@ export default function Menu({ title, onAddVehicle }) {
 
         {isAuthenticated && (
           <>
-            <button type="button" onClick={() => setShowModal(true)}>
+            <button type="button" onClick={handleOpenModal}>
               Nuovo ➕
             </button>
 
@@ -75,10 +98,7 @@ export default function Menu({ title, onAddVehicle }) {
       </div>
 
       {showModal && (
-        <NewVehicle
-          onAdd={onAddVehicle}
-          onClose={() => setShowModal(false)}
-        />
+        <NewVehicle onAdd={onAddVehicle} onClose={handleCloseModal} />
       )}
     </>
   );
