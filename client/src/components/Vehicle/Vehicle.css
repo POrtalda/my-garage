@@ -1,32 +1,86 @@
 .card-vehicle {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  margin-bottom: 20px;
   width: 90%;
-  max-width: 300px;
+  max-width: 320px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1rem;
+  overflow: hidden;
+  margin: 0 auto 1.25rem;
   padding: 1rem;
-  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 16px 34px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.76);
+  isolation: isolate;
+  animation: vehicleCardIn 0.35s ease both;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.card-vehicle::before {
+  content: "";
+  position: absolute;
+  inset: -35% -20% auto auto;
+  z-index: -1;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: rgba(77, 182, 172, 0.14);
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 
 .card-vehicle:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  transform: translateY(-5px);
+  box-shadow:
+    0 24px 48px rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.card-vehicle:hover::before {
+  transform: scale(1.12);
+  opacity: 0.95;
 }
 
 .card-vehicle_light {
-  background-color: #ffffff;
-  color: #222;
-  border: 1px solid #ddd;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(248, 253, 252, 0.94)),
+    #ffffff;
+  color: #1f2937;
 }
 
 .card-vehicle_dark {
-  background-color: #2c2c3e;
+  border-color: rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(145deg, rgba(47, 47, 66, 0.98), rgba(36, 38, 54, 0.96)),
+    #2c2c3e;
   color: #f5f5f5;
-  border: 1px solid #444;
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.card-vehicle_dark::before {
+  background: rgba(128, 203, 196, 0.1);
+}
+
+.card-vehicle_dark:hover {
+  box-shadow:
+    0 26px 52px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.card-vehicle-info {
+  position: relative;
+  z-index: 1;
+  text-align: center;
 }
 
 .card-vehicle-info h2,
@@ -35,57 +89,147 @@
   text-align: center;
 }
 
+.card-vehicle-info h2 {
+  color: inherit;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.card-vehicle-info h3 {
+  margin-top: 0.25rem;
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card-vehicle_dark .card-vehicle-info h3 {
+  color: #b7c3cf;
+}
+
 .card-traffic-img-light {
+  position: relative;
+  z-index: 1;
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
-  margin-top: 0.5rem;
+  margin-top: 0.15rem;
 }
 
 .card-traffic-img-light img {
-  width: 200px;
-  height: 150px;
+  width: 100%;
+  max-width: 240px;
+  height: 160px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.card-vehicle:hover .card-traffic-img-light img {
+  transform: scale(1.015);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.16);
+}
+
+.card-vehicle_dark .card-traffic-img-light img {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34);
 }
 
 .traffic-light {
   display: flex;
-  flex-direction: column;
+  width: fit-content;
+  min-width: 46px;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  width: 42px;
-  padding: 8px 6px;
-  margin-top: 0.75rem;
-  border-radius: 12px;
-  background-color: #515050;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+  gap: 7px;
+  margin-top: 0.9rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 999px;
+  background:
+    linear-gradient(145deg, #3f4652, #252a33);
+  box-shadow:
+    inset 0 2px 5px rgba(255, 255, 255, 0.08),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.28),
+    0 8px 18px rgba(15, 23, 42, 0.16);
 }
 
 .traffic-dot {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background-color: #2f2f2f;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background-color: #20242c;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 .traffic-dot-red.active {
   background-color: #e53935;
-  box-shadow: 0 0 8px rgba(229, 57, 53, 0.7);
+  box-shadow:
+    0 0 0 4px rgba(229, 57, 53, 0.16),
+    0 0 14px rgba(229, 57, 53, 0.72);
 }
 
 .traffic-dot-orange.active {
   background-color: #fb8c00;
-  box-shadow: 0 0 8px rgba(251, 140, 0, 0.7);
+  box-shadow:
+    0 0 0 4px rgba(251, 140, 0, 0.16),
+    0 0 14px rgba(251, 140, 0, 0.72);
 }
 
 .traffic-dot-green.active {
   background-color: #43a047;
-  box-shadow: 0 0 8px rgba(67, 160, 71, 0.7);
+  box-shadow:
+    0 0 0 4px rgba(67, 160, 71, 0.16),
+    0 0 14px rgba(67, 160, 71, 0.72);
+}
+
+.vehicle-image-placeholder {
+  display: flex;
+  width: 100%;
+  max-width: 240px;
+  min-height: 160px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  border: 1px dashed rgba(100, 116, 139, 0.38);
+  background:
+    linear-gradient(145deg, rgba(248, 250, 252, 0.9), rgba(241, 245, 249, 0.72));
+  color: #64748b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.vehicle-image-placeholder span {
+  font-size: 2.7rem;
+  filter: drop-shadow(0 6px 10px rgba(15, 23, 42, 0.12));
+}
+
+body.dark .vehicle-image-placeholder {
+  border-color: rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+  color: #d0d0d0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+@keyframes vehicleCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (max-width: 600px) {
@@ -93,9 +237,9 @@
     width: calc(100% - 2rem);
     max-width: none;
     margin: 0 auto 1rem;
-    padding: 1.15rem;
-    border-radius: 16px;
-    gap: 0.75rem;
+    padding: 1.05rem;
+    border-radius: 22px;
+    gap: 0.85rem;
   }
 
   .card-vehicle:hover {
@@ -108,75 +252,60 @@
 
   .card-vehicle-info h2 {
     font-size: 1.25rem;
-    line-height: 1.25;
   }
 
   .card-vehicle-info h3 {
-    font-size: 1rem;
+    font-size: 0.88rem;
     line-height: 1.35;
-    opacity: 0.9;
   }
 
   .card-traffic-img-light {
     width: 100%;
-    margin-top: 0.35rem;
+    margin-top: 0.25rem;
   }
 
-  .card-traffic-img-light img {
+  .card-traffic-img-light img,
+  .vehicle-image-placeholder {
     width: 100%;
-    max-width: 260px;
-    height: 170px;
-    object-fit: contain;
-    border-radius: 12px;
+    max-width: 280px;
+    height: 172px;
+    object-fit: cover;
+    border-radius: 16px;
   }
 }
 
 @media (max-width: 380px) {
   .card-vehicle {
     width: calc(100% - 1rem);
-    padding: 1rem;
+    padding: 0.95rem;
   }
 
-  .card-traffic-img-light img {
-    height: 150px;
+  .card-traffic-img-light img,
+  .vehicle-image-placeholder {
+    height: 154px;
   }
 
-  .dot {
+  .traffic-light {
+    gap: 6px;
+    padding: 0.5rem 0.62rem;
+  }
+
+  .traffic-dot {
     width: 13px;
     height: 13px;
   }
-
-  .dot.red {
-    top: 170px;
-  }
-
-  .dot.orange {
-    top: 190px;
-  }
-
-  .dot.green {
-    top: 210px;
-  }
 }
 
-.vehicle-image-placeholder {
-  width: 100%;
-  min-height: 150px;
-  border-radius: 12px;
-  background: rgba(108, 117, 125, 0.1);
-  border: 2px dashed #c8d0d8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6c757d;
-}
+@media (prefers-reduced-motion: reduce) {
+  .card-vehicle,
+  .card-vehicle::before,
+  .card-traffic-img-light img {
+    animation: none;
+    transition: none;
+  }
 
-.vehicle-image-placeholder span {
-  font-size: 2.5rem;
-}
-
-body.dark .vehicle-image-placeholder {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: #555;
-  color: #d0d0d0;
+  .card-vehicle:hover,
+  .card-vehicle:hover .card-traffic-img-light img {
+    transform: none;
+  }
 }
