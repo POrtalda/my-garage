@@ -5,7 +5,7 @@
   align-items: center;
   width: 100%;
   min-height: calc(100vh - 72px);
-  padding: 1.25rem 0 2.5rem;
+  padding: 7rem 0 2.5rem;
   overflow-x: hidden;
   transition: background 0.3s ease, color 0.3s ease;
 }
@@ -31,7 +31,7 @@
 
 .vehicles-list-section {
   width: 100%;
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: 7rem;
   animation: fadeUp 0.35s ease both;
 }
 
@@ -143,11 +143,21 @@ body.dark button:focus-visible {
 @media (max-width: 768px) {
   .app {
     min-height: calc(100vh - 64px);
-    padding-top: 0.85rem;
+    padding-top: 8.75rem;
   }
 
   .vehicles-list-section {
-    scroll-margin-top: 4.5rem;
+    scroll-margin-top: 9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding-top: 9.5rem;
+  }
+
+  .vehicles-list-section {
+    scroll-margin-top: 9.75rem;
   }
 }
 
