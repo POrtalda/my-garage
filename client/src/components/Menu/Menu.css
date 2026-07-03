@@ -12,7 +12,7 @@
   left: 0;
   z-index: 1000;
   background-color: #4db6ac;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
   border-bottom: 2px solid #00796b;
 }
 
@@ -35,7 +35,7 @@ body.dark .menu {
 }
 
 .menu li a:hover {
-  background-color: rgba(255,255,255,0.2);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .menu-actions {
@@ -76,6 +76,18 @@ body.dark .menu {
 
 .menu-logout:hover {
   background: #dc2626;
+}
+
+.guest-title {
+  width: 100%;
+  text-align: center;
+  margin: 1.2rem auto 0;
+}
+
+.guest-actions {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.75rem;
 }
 
 body.dark .menu-user {
