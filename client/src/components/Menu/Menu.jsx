@@ -42,34 +42,50 @@ export default function Menu({ title, onAddVehicle }) {
   return (
     <>
       {isAuthenticated && (
-        <ul className={isDarkMode ? "menu menu_dark" : "menu menulight"}>
-          <li>
-            <NavLink to="/" onClick={closeModalOnly}>
-              Home
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/expired" onClick={closeModalOnly}>
-              Scaduti
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/expiring" onClick={closeModalOnly}>
-              In Scadenza
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/impostazioni" onClick={closeModalOnly}>
-              Impostazioni
-            </NavLink>
-          </li>
-        </ul>
+        <nav
+          className={isDarkMode ? "menu menu_dark" : "menu menu_light"}
+          aria-label="Navigazione principale"
+        >
+          <NavLink
+            to="/"
+            className="menu-brand"
+            onClick={closeModalOnly}
+            end
+          >
+            {title}
+          </NavLink>
+
+          <ul className="menu-links">
+            <li>
+              <NavLink to="/" onClick={closeModalOnly} end>
+                Home
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/expired" onClick={closeModalOnly}>
+                Scaduti
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/expiring" onClick={closeModalOnly}>
+                In Scadenza
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/impostazioni" onClick={closeModalOnly}>
+                Impostazioni
+              </NavLink>
+            </li>
+          </ul>
+        </nav>
       )}
 
-      <h1 className={isAuthenticated ? "" : "guest-title"}>{title}</h1>
+      {!isAuthenticated && <h1 className="guest-title">{title}</h1>}
 
       <div
-        className={isAuthenticated ? "menu-actions" : "menu-actions guest-actions"}
+        className={
+          isAuthenticated ? "menu-actions" : "menu-actions guest-actions"
+        }
       >
         {isAuthenticated && (
           <div className="menu-user">
