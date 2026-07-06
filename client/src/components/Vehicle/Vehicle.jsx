@@ -3,7 +3,7 @@ import './Vehicle.css';
 import ThemeContext from '../../context/ThemeContext';
 import { Link } from 'react-router';
 
-export default function Vehicle({ vehicle }) {
+export default function Vehicle({ vehicle, expiryView = '' }) {
   function getVehicleStatus(vehicle) {
     if (
       vehicle.expired_car_tax ||
@@ -24,7 +24,29 @@ export default function Vehicle({ vehicle }) {
     return 'green';
   }
 
+  function getExpiryReasons(vehicle, view) {
+    if (view === 'expired') {
+      return [
+        vehicle.expired_car_tax && 'Bollo',
+        vehicle.expired_insurance && 'Assicurazione',
+        vehicle.expired_revision && 'Revisione',
+      ].filter(Boolean);
+    }
+
+    if (view === 'expiring') {
+      return [
+        vehicle.expiring_car_tax && 'Bollo',
+        vehicle.expiring_insurance && 'Assicurazione',
+        vehicle.expiring_revision && 'Revisione',
+      ].filter(Boolean);
+    }
+
+    return [];
+  }
+
   const vehicleStatus = getVehicleStatus(vehicle);
+  const expiryReasons = getExpiryReasons(vehicle, expiryView);
+  const expiryLabel = expiryView === 'expired' ? 'Scaduto' : 'In scadenza';
   const { isDarkMode } = useContext(ThemeContext);
 
   return (
@@ -33,6 +55,20 @@ export default function Vehicle({ vehicle }) {
         <div className="card-vehicle-info">
           <h2>{vehicle.brand}</h2>
           <h3>{vehicle.model}</h3>
+
+          {expiryReasons.length > 0 && (
+            <div className={`expiry-reasons expiry-reasons_${expiryView}`}>
+              <span className="expiry-reasons-label">{expiryLabel}</span>
+
+              <div className="expiry-reasons-list">
+                {expiryReasons.map((reason) => (
+                  <span key={reason} className="expiry-reason-chip">
+                    {reason}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="card-traffic-img-light">

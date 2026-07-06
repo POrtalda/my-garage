@@ -22,7 +22,10 @@ const sendWeeklyPushNotifications = async (user, alerts, summary) => {
     return;
   }
 
-  const expiredCount = alerts.filter((alert) => alert.status === "expired").length;
+  const expiredCount = alerts.filter(
+    (alert) => alert.status === "expired"
+  ).length;
+
   const expiringCount = alerts.filter(
     (alert) => alert.status === "expiring"
   ).length;
@@ -116,7 +119,14 @@ function buildWeeklyEmailText({ user, alerts }) {
 
 function checkCronSecret(req, res) {
   const configuredSecret = process.env.INTERNAL_CRON_SECRET;
-  const requestSecret = req.get("x-cron-secret");
+  const headerSecret = req.get("x-cron-secret");
+  const authorizationHeader = req.get("authorization");
+
+  const bearerSecret = authorizationHeader?.startsWith("Bearer ")
+    ? authorizationHeader.replace("Bearer ", "").trim()
+    : null;
+
+  const requestSecret = headerSecret || bearerSecret;
 
   if (!configuredSecret) {
     res.status(500).json({
@@ -127,7 +137,7 @@ function checkCronSecret(req, res) {
 
   if (!requestSecret || requestSecret !== configuredSecret) {
     res.status(401).json({
-      message: "Non autorizzato.",
+      message: "Unauthorized",
     });
     return false;
   }
