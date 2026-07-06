@@ -15,6 +15,7 @@ function App({
   onRetry,
   emptyTitle = "Nessun veicolo da mostrare",
   emptyDescription = "Aggiungi un veicolo o controlla un'altra sezione.",
+  expiryView = "",
 }) {
   const { isDarkMode } = useContext(ThemeContext);
   const location = useLocation();
@@ -58,7 +59,9 @@ function App({
             description={emptyDescription}
           />
         ) : (
-          vehicles.map((v) => <Vehicle key={v.id} vehicle={v} />)
+          vehicles.map((v) => (
+            <Vehicle key={v.id} vehicle={v} expiryView={expiryView} />
+          ))
         )}
       </section>
     </div>

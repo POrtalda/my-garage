@@ -374,6 +374,7 @@ function AppRoutesContent() {
                       vehicle.expired_insurance ||
                       vehicle.expired_revision
                   )}
+                  expiryView="expired"
                   isLoading={isLoading}
                   error={error}
                   onRetry={fetchVehicles}
@@ -395,6 +396,7 @@ function AppRoutesContent() {
                       vehicle.expiring_insurance ||
                       vehicle.expiring_revision
                   )}
+                  expiryView="expiring"
                   isLoading={isLoading}
                   error={error}
                   onRetry={fetchVehicles}
