@@ -116,7 +116,26 @@ function buildWeeklyEmailText({ user, alerts }) {
 
 function checkCronSecret(req, res) {
   const configuredSecret = process.env.INTERNAL_CRON_SECRET;
-  const requestSecret = req.get("x-cron-secret");
+const headerSecret = req.get("x-cron-secret");
+const authorizationHeader = req.get("authorization");
+
+const bearerSecret = authorizationHeader?.startsWith("Bearer ")
+  ? authorizationHeader.replace("Bearer ", "").trim()
+  : null;
+
+const requestSecret = headerSecret || bearerSecret;
+
+if (!configuredSecret) {
+  return res.status(500).json({
+    message: "INTERNAL_CRON_SECRET non configurato.",
+  });
+}
+
+if (!requestSecret || requestSecret !== configuredSecret) {
+  return res.status(401).json({
+    message: "Unauthorized",
+  });
+}
 
   if (!configuredSecret) {
     res.status(500).json({
