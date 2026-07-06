@@ -35,6 +35,74 @@ function readFileAsDataUrl(file) {
   });
 }
 
+function getVehicleStatus(vehicle) {
+  if (
+    vehicle.expired_car_tax ||
+    vehicle.expired_insurance ||
+    vehicle.expired_revision
+  ) {
+    return {
+      label: "Scadenze da gestire",
+      tone: "expired",
+      description: "Almeno una scadenza risulta superata.",
+    };
+  }
+
+  if (
+    vehicle.expiring_car_tax ||
+    vehicle.expiring_insurance ||
+    vehicle.expiring_revision
+  ) {
+    return {
+      label: "In scadenza",
+      tone: "expiring",
+      description: "Almeno una scadenza è vicina.",
+    };
+  }
+
+  return {
+    label: "Tutto ok",
+    tone: "ok",
+    description: "Le scadenze principali sono sotto controllo.",
+  };
+}
+
+function getDeadlineStatus(vehicle, type) {
+  const statusMap = {
+    revision: {
+      expired: vehicle.expired_revision,
+      expiring: vehicle.expiring_revision,
+    },
+    bollo: {
+      expired: vehicle.expired_car_tax,
+      expiring: vehicle.expiring_car_tax,
+    },
+    insurance: {
+      expired: vehicle.expired_insurance,
+      expiring: vehicle.expiring_insurance,
+    },
+  };
+
+  if (statusMap[type].expired) {
+    return {
+      label: "Scaduta",
+      tone: "expired",
+    };
+  }
+
+  if (statusMap[type].expiring) {
+    return {
+      label: "In scadenza",
+      tone: "expiring",
+    };
+  }
+
+  return {
+    label: "Ok",
+    tone: "ok",
+  };
+}
+
 export default function Details({ vehicle, onUpdate, onDelete }) {
   const { isDarkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
@@ -50,6 +118,35 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
   const [successMessage, setSuccessMessage] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const vehicleStatus = getVehicleStatus(vehicle);
+
+  const deadlines = [
+    {
+      id: "revision",
+      title: "Revisione",
+      value: revision,
+      error: errors.revision,
+      onChange: (value) => handleFieldChange("revision", value),
+      status: getDeadlineStatus(vehicle, "revision"),
+    },
+    {
+      id: "bollo",
+      title: "Bollo",
+      value: bollo,
+      error: errors.bollo,
+      onChange: (value) => handleFieldChange("bollo", value),
+      status: getDeadlineStatus(vehicle, "bollo"),
+    },
+    {
+      id: "insurance",
+      title: "Assicurazione",
+      value: insurance,
+      error: errors.insurance,
+      onChange: (value) => handleFieldChange("insurance", value),
+      status: getDeadlineStatus(vehicle, "insurance"),
+    },
+  ];
 
   useEffect(() => {
     setRevision(vehicle.scadenza_revisione || "");
@@ -178,7 +275,7 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
     setErrors((prevErrors) => ({ ...prevErrors, submit: "" }));
 
     try {
-      await onDelete(vehicle.id);
+      await onDelete(vehicle.id || vehicle._id);
       navigate("/");
     } catch {
       setErrors((prevErrors) => ({
@@ -192,42 +289,41 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
 
   return (
     <>
-      <div className={isDarkMode ? "card-details dark" : "card-details light"}>
-        <h2>
-          {vehicle.brand} {vehicle.model}
-        </h2>
+      <main
+        className={
+          isDarkMode
+            ? "details-page details-page_dark"
+            : "details-page details-page_light"
+        }
+      >
+        <section className="details-hero">
+          <div className="details-hero-copy">
+            <span className="details-eyebrow">Dettaglio veicolo</span>
 
-        {imagePreview ? (
-          <img src={imagePreview} alt={vehicle.model} />
-        ) : (
-          <div className="details-image-placeholder">
-            <span>🚗</span>
-            <p>Nessuna foto disponibile</p>
+            <h1>
+              {vehicle.brand} {vehicle.model}
+            </h1>
+
+            <div className={`details-status details-status_${vehicleStatus.tone}`}>
+              <span className="details-status-dot" />
+              <div>
+                <strong>{vehicleStatus.label}</strong>
+                <p>{vehicleStatus.description}</p>
+              </div>
+            </div>
           </div>
-        )}
 
-        <div className="input-group details-image-upload">
-          <label htmlFor="vehicle-image">Foto veicolo:</label>
-          <input
-            id="vehicle-image"
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-          <small>Puoi caricare o sostituire la foto. Dimensione massima: 5 MB.</small>
-
-          {imagePreview && (
-            <button
-              type="button"
-              className="details-remove-image"
-              onClick={handleRemoveImage}
-            >
-              Rimuovi foto
-            </button>
-          )}
-
-          {imageError && <span className="field-error">{imageError}</span>}
-        </div>
+          <div className="details-hero-media">
+            {imagePreview ? (
+              <img src={imagePreview} alt={`${vehicle.brand} ${vehicle.model}`} />
+            ) : (
+              <div className="details-image-placeholder">
+                <span>🚗</span>
+                <p>Nessuna foto disponibile</p>
+              </div>
+            )}
+          </div>
+        </section>
 
         {successMessage && (
           <p className="details-success-message">{successMessage}</p>
@@ -235,52 +331,106 @@ export default function Details({ vehicle, onUpdate, onDelete }) {
 
         {errors.submit && <p className="field-error">{errors.submit}</p>}
 
-        <div className="input-group">
-          <label>Scadenza Revisione:</label>
-          <input
-            type="date"
-            value={formatDateForInput(revision)}
-            onChange={(e) => handleFieldChange("revision", e.target.value)}
-            className={errors.revision ? "input-error" : ""}
-          />
-          {errors.revision && (
-            <span className="field-error">{errors.revision}</span>
-          )}
-        </div>
+        <section className="details-layout">
+          <div className="details-panel details-panel_deadlines">
+            <div className="details-panel-header">
+              <span className="details-panel-icon">📅</span>
+              <div>
+                <h2>Scadenze</h2>
+                <p>Aggiorna le date principali del veicolo.</p>
+              </div>
+            </div>
 
-        <div className="input-group">
-          <label>Scadenza Bollo:</label>
-          <input
-            type="date"
-            value={formatDateForInput(bollo)}
-            onChange={(e) => handleFieldChange("bollo", e.target.value)}
-            className={errors.bollo ? "input-error" : ""}
-          />
-          {errors.bollo && <span className="field-error">{errors.bollo}</span>}
-        </div>
+            <div className="details-deadlines-list">
+              {deadlines.map((deadline) => (
+                <div
+                  key={deadline.id}
+                  className={`details-deadline details-deadline_${deadline.status.tone}`}
+                >
+                  <div className="details-deadline-header">
+                    <div>
+                      <h3>{deadline.title}</h3>
+                      <span
+                        className={`details-deadline-badge details-deadline-badge_${deadline.status.tone}`}
+                      >
+                        {deadline.status.label}
+                      </span>
+                    </div>
+                  </div>
 
-        <div className="input-group">
-          <label>Scadenza Assicurazione:</label>
-          <input
-            type="date"
-            value={formatDateForInput(insurance)}
-            onChange={(e) => handleFieldChange("insurance", e.target.value)}
-            className={errors.insurance ? "input-error" : ""}
-          />
-          {errors.insurance && (
-            <span className="field-error">{errors.insurance}</span>
-          )}
-        </div>
+                  <label htmlFor={`deadline-${deadline.id}`}>
+                    Data scadenza
+                  </label>
 
-        <div className="details-actions">
-          <button onClick={handleRenew} disabled={isSaving}>
-            {isSaving ? "Salvataggio..." : "💾 Salva modifiche"}
-          </button>
-          <button onClick={openDeleteModal} className="btn-delete">
-            🗑️ Elimina
-          </button>
-        </div>
-      </div>
+                  <input
+                    id={`deadline-${deadline.id}`}
+                    type="date"
+                    value={formatDateForInput(deadline.value)}
+                    onChange={(e) => deadline.onChange(e.target.value)}
+                    className={deadline.error ? "input-error" : ""}
+                  />
+
+                  {deadline.error && (
+                    <span className="field-error">{deadline.error}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <aside className="details-panel details-panel_media">
+            <div className="details-panel-header">
+              <span className="details-panel-icon">🖼️</span>
+              <div>
+                <h2>Foto veicolo</h2>
+                <p>Carica o sostituisci l’immagine del veicolo.</p>
+              </div>
+            </div>
+
+            <div className="details-image-upload">
+              <label htmlFor="vehicle-image">Seleziona immagine</label>
+
+              <input
+                id="vehicle-image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+
+              <small>Dimensione massima: 5 MB.</small>
+
+              {imagePreview && (
+                <button
+                  type="button"
+                  className="details-remove-image"
+                  onClick={handleRemoveImage}
+                >
+                  Rimuovi foto
+                </button>
+              )}
+
+              {imageError && <span className="field-error">{imageError}</span>}
+            </div>
+          </aside>
+        </section>
+
+        <section className="details-actions-panel">
+          <div>
+            <h2>Azioni</h2>
+            <p>Salva le modifiche o elimina il veicolo dal garage.</p>
+          </div>
+
+          <div className="details-actions">
+            <button onClick={handleRenew} disabled={isSaving}>
+              {isSaving ? "Salvataggio..." : "💾 Salva modifiche"}
+            </button>
+
+            <button onClick={openDeleteModal} className="btn-delete">
+              🗑️ Elimina
+            </button>
+          </div>
+        </section>
+      </main>
 
       {showDeleteModal && (
         <DeleteConfirmationModal
