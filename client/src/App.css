@@ -36,7 +36,12 @@
 }
 
 .vehicles-list-section {
-  width: 100%;
+  display: grid;
+  width: min(100%, 1180px);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  align-items: stretch;
+  gap: 1.25rem;
+  padding: 0 1rem;
   scroll-margin-top: 5rem;
   animation: fadeUp 0.3s ease both;
 }

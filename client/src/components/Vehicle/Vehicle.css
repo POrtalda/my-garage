@@ -1,14 +1,14 @@
 .card-vehicle {
   position: relative;
   display: flex;
-  width: 90%;
-  max-width: 320px;
+  width: 100%;
+  max-width: none;
   flex-direction: column;
   align-items: stretch;
   justify-content: space-between;
   gap: 1rem;
   overflow: hidden;
-  margin: 0 auto 1.25rem;
+  margin: 0;
   padding: 1rem;
   border-radius: 24px;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -75,6 +75,15 @@
   box-shadow:
     0 26px 52px rgba(0, 0, 0, 0.48),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.card-vehicle-link {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  color: inherit;
+  text-decoration: none;
 }
 
 .card-vehicle-info {
@@ -190,7 +199,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 0.15rem;
+  margin-top: 0.85rem;
 }
 
 .card-traffic-img-light img {
@@ -307,9 +316,9 @@ body.dark .vehicle-image-placeholder {
 
 @media (max-width: 600px) {
   .card-vehicle {
-    width: calc(100% - 2rem);
+    width: 100%;
     max-width: none;
-    margin: 0 auto 1rem;
+    margin: 0;
     padding: 1.05rem;
     border-radius: 22px;
     gap: 0.85rem;
@@ -334,7 +343,7 @@ body.dark .vehicle-image-placeholder {
 
   .card-traffic-img-light {
     width: 100%;
-    margin-top: 0.25rem;
+    margin-top: 0.85rem;
   }
 
   .card-traffic-img-light img,
@@ -349,7 +358,7 @@ body.dark .vehicle-image-placeholder {
 
 @media (max-width: 380px) {
   .card-vehicle {
-    width: calc(100% - 1rem);
+    width: 100%;
     padding: 0.95rem;
   }
 
