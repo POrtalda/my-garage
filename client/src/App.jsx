@@ -3,6 +3,7 @@ import { useLocation } from "react-router";
 import "./App.css";
 import Vehicle from "./components/Vehicle/Vehicle";
 import DashboardSummary from "./components/DashboardSummary/DashboardSummary";
+import PrioritySummary from "./components/PrioritySummary/PrioritySummary";
 import EmptyState from "./components/EmptyState/EmptyState";
 import StateMessage from "./components/StateMessage/StateMessage";
 import ThemeContext from "./context/ThemeContext";
@@ -19,6 +20,7 @@ function App({
 }) {
   const { isDarkMode } = useContext(ThemeContext);
   const location = useLocation();
+  const shouldShowHomeSummary = showDashboard && !isLoading && !error && vehicles.length > 0;
 
   useEffect(() => {
     if (!location.state?.scrollToVehicles || isLoading) {
@@ -35,6 +37,8 @@ function App({
   return (
     <div className={isDarkMode ? "app dark" : "app light"}>
       {showDashboard && <DashboardSummary vehicles={vehicles} />}
+
+      {shouldShowHomeSummary && <PrioritySummary vehicles={vehicles} />}
 
       <section id="vehicles-list" className="vehicles-list-section">
         {isLoading ? (
@@ -60,7 +64,12 @@ function App({
           />
         ) : (
           vehicles.map((v) => (
-            <Vehicle key={v.id} vehicle={v} expiryView={expiryView} />
+            <Vehicle
+              key={v.id || v._id}
+              vehicle={v}
+              expiryView={expiryView}
+              showNextExpiry={showDashboard && !expiryView}
+            />
           ))
         )}
       </section>
