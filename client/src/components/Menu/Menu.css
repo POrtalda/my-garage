@@ -9,19 +9,19 @@
   gap: 1rem;
   margin: 0;
   padding: 0.8rem 1.25rem;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.92);
-  color: #1f2937;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid rgba(0, 105, 92, 0.18);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(232, 255, 251, 0.94));
+  color: #15313b;
+  box-shadow: 0 8px 24px rgba(0, 105, 92, 0.12);
   font-weight: 700;
   backdrop-filter: blur(14px);
 }
 
 body.dark .menu {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-  background: rgba(25, 27, 39, 0.94);
+  border-bottom-color: rgba(128, 203, 196, 0.16);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(20, 83, 91, 0.9));
   color: #f5f5f5;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
 }
 
 .menu-brand {
@@ -31,9 +31,9 @@ body.dark .menu {
   min-height: 38px;
   padding: 0.35rem 0;
   color: #00695c;
-  font-size: 1.35rem;
-  font-weight: 900;
-  letter-spacing: -0.04em;
+  font-size: 1.4rem;
+  font-weight: 950;
+  letter-spacing: -0.05em;
   text-decoration: none;
 }
 
@@ -86,13 +86,14 @@ body.dark .menu-brand:hover {
 }
 
 .menu-links li a.active {
-  background-color: #4db6ac;
+  background: linear-gradient(135deg, #009688, #00bcd4);
   color: #ffffff;
+  box-shadow: 0 8px 18px rgba(0, 150, 136, 0.24);
 }
 
 .menu-links li a:hover {
-  background-color: rgba(77, 182, 172, 0.12);
-  color: #00695c;
+  background-color: rgba(0, 188, 212, 0.14);
+  color: #00796b;
   transform: translateY(-1px);
 }
 
@@ -127,9 +128,9 @@ body.dark .menu-links li a.active {
   flex-direction: column;
   justify-content: center;
   padding: 0.5rem 0.85rem;
-  border: 1px solid rgba(77, 182, 172, 0.18);
+  border: 1px solid rgba(0, 150, 136, 0.22);
   border-radius: 14px;
-  background: rgba(77, 182, 172, 0.1);
+  background: linear-gradient(135deg, rgba(0, 150, 136, 0.13), rgba(0, 188, 212, 0.12));
   color: #00695c;
   line-height: 1.2;
 }
@@ -147,9 +148,9 @@ body.dark .menu-links li a.active {
 }
 
 .menu-logout {
-  background: #ef4444;
+  background: linear-gradient(135deg, #ef4444, #f97316);
   color: #ffffff;
-  box-shadow: 0 6px 14px rgba(220, 38, 38, 0.18);
+  box-shadow: 0 8px 18px rgba(239, 68, 68, 0.24);
 }
 
 .menu-logout:hover {
@@ -227,6 +228,7 @@ body.dark .menu-user {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .menu-brand,
   .menu-links li a,
   .menu-logout {

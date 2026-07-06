@@ -23,14 +23,16 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle at top left, rgba(77, 182, 172, 0.12), transparent 28rem),
-    linear-gradient(180deg, #f7fbfa 0%, #eef5f4 100%);
+    radial-gradient(circle at top left, rgba(0, 150, 136, 0.22), transparent 28rem),
+    radial-gradient(circle at top right, rgba(255, 152, 0, 0.16), transparent 26rem),
+    linear-gradient(180deg, #f4fffc 0%, #eef7ff 100%);
 }
 
 .app.dark::before {
   background:
-    radial-gradient(circle at top left, rgba(77, 182, 172, 0.12), transparent 28rem),
-    linear-gradient(180deg, #171923 0%, #202231 100%);
+    radial-gradient(circle at top left, rgba(0, 188, 212, 0.18), transparent 28rem),
+    radial-gradient(circle at top right, rgba(255, 193, 7, 0.12), transparent 26rem),
+    linear-gradient(180deg, #101827 0%, #1f2937 100%);
 }
 
 .vehicles-list-section {
@@ -155,6 +157,7 @@ body.dark button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .app,
   input,
   button,
