@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 .app {
   position: relative;
   display: flex;
@@ -5,7 +11,7 @@
   align-items: center;
   width: 100%;
   min-height: calc(100vh - 72px);
-  padding: 7rem 0 2.5rem;
+  padding: 1.5rem 0 2.5rem;
   overflow-x: hidden;
   transition: background 0.3s ease, color 0.3s ease;
 }
@@ -17,25 +23,22 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle at top left, rgba(77, 182, 172, 0.18), transparent 32rem),
-    radial-gradient(circle at top right, rgba(25, 118, 210, 0.12), transparent 28rem),
-    linear-gradient(180deg, #f6fbfa 0%, #eef5f4 100%);
+    radial-gradient(circle at top left, rgba(77, 182, 172, 0.12), transparent 28rem),
+    linear-gradient(180deg, #f7fbfa 0%, #eef5f4 100%);
 }
 
 .app.dark::before {
   background:
-    radial-gradient(circle at top left, rgba(77, 182, 172, 0.16), transparent 30rem),
-    radial-gradient(circle at top right, rgba(100, 181, 246, 0.1), transparent 26rem),
+    radial-gradient(circle at top left, rgba(77, 182, 172, 0.12), transparent 28rem),
     linear-gradient(180deg, #171923 0%, #202231 100%);
 }
 
 .vehicles-list-section {
   width: 100%;
-  scroll-margin-top: 7rem;
-  animation: fadeUp 0.35s ease both;
+  scroll-margin-top: 5rem;
+  animation: fadeUp 0.3s ease both;
 }
 
-/* input e button coerenti */
 input,
 button {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -53,7 +56,7 @@ button {
 input {
   padding: 0.65rem 0.9rem;
   border: 1px solid rgba(15, 23, 42, 0.16);
-  background-color: rgba(255, 255, 255, 0.92);
+  background-color: #ffffff;
   color: #1f2937;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
@@ -66,7 +69,7 @@ input:focus {
   outline: none;
   border-color: #4db6ac;
   box-shadow:
-    0 0 0 4px rgba(77, 182, 172, 0.16),
+    0 0 0 4px rgba(77, 182, 172, 0.14),
     0 6px 16px rgba(15, 23, 42, 0.08);
 }
 
@@ -76,18 +79,18 @@ button {
   background-color: #4db6ac;
   color: #fff;
   font-weight: 700;
-  box-shadow: 0 8px 18px rgba(0, 150, 136, 0.22);
+  box-shadow: 0 6px 14px rgba(0, 150, 136, 0.18);
 }
 
 button:hover {
   background-color: #009688;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 150, 136, 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0, 150, 136, 0.24);
 }
 
 button:active {
   transform: translateY(0);
-  box-shadow: 0 6px 14px rgba(0, 150, 136, 0.22);
+  box-shadow: 0 5px 12px rgba(0, 150, 136, 0.18);
 }
 
 button:focus-visible {
@@ -131,7 +134,7 @@ body.dark button:focus-visible {
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
 
   to {
@@ -143,21 +146,11 @@ body.dark button:focus-visible {
 @media (max-width: 768px) {
   .app {
     min-height: calc(100vh - 64px);
-    padding-top: 8.75rem;
+    padding-top: 1rem;
   }
 
   .vehicles-list-section {
-    scroll-margin-top: 9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .app {
-    padding-top: 9.5rem;
-  }
-
-  .vehicles-list-section {
-    scroll-margin-top: 9.75rem;
+    scroll-margin-top: 5rem;
   }
 }
 

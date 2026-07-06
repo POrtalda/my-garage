@@ -1,35 +1,28 @@
 .menu {
-  position: fixed;
-  top: 0.75rem;
-  left: 50%;
+  position: sticky;
+  top: 0;
   z-index: 1000;
   display: flex;
-  width: min(calc(100% - 1.5rem), 1080px);
+  width: 100%;
   align-items: center;
   justify-content: center;
-  gap: 0.65rem;
+  gap: 0.75rem;
   margin: 0;
-  padding: 0.55rem;
+  padding: 0.8rem 1rem;
   list-style: none;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.78);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.88);
   color: #1f2937;
-  box-shadow:
-    0 18px 38px rgba(15, 23, 42, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
   font-weight: 700;
-  backdrop-filter: blur(18px);
-  transform: translateX(-50%);
+  backdrop-filter: blur(14px);
 }
 
 body.dark .menu {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(25, 27, 39, 0.78);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: rgba(25, 27, 39, 0.9);
   color: #f5f5f5;
-  box-shadow:
-    0 20px 44px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
 }
 
 .menu li {
@@ -41,22 +34,20 @@ body.dark .menu {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
-  padding: 0.48rem 0.9rem;
-  border-radius: 999px;
+  min-height: 36px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 10px;
   color: inherit;
   text-decoration: none;
   transition:
-    transform 0.2s ease,
     background-color 0.2s ease,
     color 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.2s ease;
 }
 
 .menu li a.active {
-  background: linear-gradient(135deg, #4db6ac, #009688);
+  background-color: #4db6ac;
   color: #ffffff;
-  box-shadow: 0 8px 18px rgba(0, 150, 136, 0.24);
 }
 
 .menu li a:hover {
@@ -66,6 +57,7 @@ body.dark .menu {
 }
 
 .menu li a.active:hover {
+  background-color: #009688;
   color: #ffffff;
 }
 
@@ -75,17 +67,16 @@ body.dark .menu li a:hover {
 }
 
 body.dark .menu li a.active {
-  background: linear-gradient(135deg, #00897b, #00695c);
+  background-color: #00796b;
   color: #ffffff;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.34);
 }
 
 .menu-actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.65rem;
-  margin-top: 0.75rem;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .menu-user {
@@ -95,8 +86,8 @@ body.dark .menu li a.active {
   justify-content: center;
   padding: 0.5rem 0.85rem;
   border: 1px solid rgba(77, 182, 172, 0.18);
-  border-radius: 18px;
-  background: rgba(77, 182, 172, 0.12);
+  border-radius: 14px;
+  background: rgba(77, 182, 172, 0.1);
   color: #00695c;
   line-height: 1.2;
 }
@@ -114,14 +105,14 @@ body.dark .menu li a.active {
 }
 
 .menu-logout {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: #ef4444;
   color: #ffffff;
-  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.22);
+  box-shadow: 0 6px 14px rgba(220, 38, 38, 0.18);
 }
 
 .menu-logout:hover {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-  box-shadow: 0 12px 24px rgba(220, 38, 38, 0.3);
+  background: #dc2626;
+  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.24);
 }
 
 .guest-title {
@@ -144,12 +135,9 @@ body.dark .menu-user {
 
 @media (max-width: 720px) {
   .menu {
-    top: 0.5rem;
-    width: min(calc(100% - 1rem), 560px);
     flex-wrap: wrap;
-    gap: 0.35rem;
-    padding: 0.45rem;
-    border-radius: 24px;
+    gap: 0.4rem;
+    padding: 0.65rem 0.5rem;
     font-size: 0.9rem;
   }
 
@@ -171,18 +159,7 @@ body.dark .menu-user {
   }
 }
 
-@media (max-width: 380px) {
-  .menu {
-    font-size: 0.84rem;
-  }
-
-  .menu li a {
-    padding: 0.38rem 0.55rem;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .menu,
   .menu li a,
   .menu-logout {
     transition: none;
