@@ -6,15 +6,7 @@ export default function PrioritySummary({ vehicles }) {
   const priorityItems = getPriorityExpiryItems(vehicles, 3);
 
   if (priorityItems.length === 0) {
-    return (
-      <section className="priority-summary priority-summary_ok">
-        <div>
-          <span className="priority-summary-eyebrow">Priorità</span>
-          <h2>Tutto sotto controllo</h2>
-          <p>Non ci sono scadenze urgenti da gestire in questo momento.</p>
-        </div>
-      </section>
-    );
+    return null;
   }
 
   const hasExpired = priorityItems.some((item) => item.status === "expired");
