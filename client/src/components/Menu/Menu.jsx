@@ -46,14 +46,16 @@ export default function Menu({ title, onAddVehicle }) {
           className={isDarkMode ? "menu menu_dark" : "menu menu_light"}
           aria-label="Navigazione principale"
         >
-          <NavLink
-            to="/"
-            className="menu-brand"
-            onClick={closeModalOnly}
-            end
-          >
-            {title}
-          </NavLink>
+          {title && (
+            <NavLink
+              to="/"
+              className="menu-brand"
+              onClick={closeModalOnly}
+              end
+            >
+              {title}
+            </NavLink>
+          )}
 
           <ul className="menu-links">
             <li>
@@ -80,7 +82,7 @@ export default function Menu({ title, onAddVehicle }) {
         </nav>
       )}
 
-      {!isAuthenticated && <h1 className="guest-title">{title}</h1>}
+      {!isAuthenticated && title && <h1 className="guest-title">{title}</h1>}
 
       <div
         className={

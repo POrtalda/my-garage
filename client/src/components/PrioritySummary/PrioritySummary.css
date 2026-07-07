@@ -12,12 +12,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.76);
 }
 
-.priority-summary_ok {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(236, 253, 245, 0.9)),
-    #ffffff;
-}
-
 .priority-summary-header {
   display: flex;
   align-items: center;
@@ -133,12 +127,6 @@ body.dark .priority-summary {
   box-shadow:
     0 16px 34px rgba(0, 0, 0, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-body.dark .priority-summary_ok {
-  background:
-    linear-gradient(135deg, rgba(47, 47, 66, 0.98), rgba(34, 54, 48, 0.86)),
-    #2f2f42;
 }
 
 body.dark .priority-summary h2,
