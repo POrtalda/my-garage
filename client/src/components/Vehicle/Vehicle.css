@@ -443,3 +443,81 @@ body.dark .vehicle-image-placeholder {
     transform: none;
   }
 }
+
+/* Mobile UI polish */
+
+@media (max-width: 600px) {
+  .card-vehicle {
+    gap: 0.75rem;
+    padding: 0.9rem;
+    border-radius: 20px;
+    box-shadow:
+      0 10px 24px rgba(15, 23, 42, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  }
+
+  .card-vehicle-info h2 {
+    font-size: 1.18rem;
+  }
+
+  .card-vehicle-info h3 {
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+  }
+
+  .vehicle-next-expiry {
+    margin-top: 0.65rem;
+    padding: 0.45rem 0.58rem;
+    font-size: 0.75rem;
+  }
+
+  .expiry-reasons {
+    gap: 0.35rem;
+    margin-top: 0.65rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: 16px;
+  }
+
+  .expiry-reasons-label {
+    font-size: 0.66rem;
+  }
+
+  .expiry-reason-chip {
+    padding: 0.24rem 0.48rem;
+    font-size: 0.72rem;
+  }
+
+  .card-traffic-img-light {
+    margin-top: 0.7rem;
+  }
+
+  .card-traffic-img-light img,
+  .vehicle-image-placeholder {
+    max-width: 100%;
+    height: 160px;
+    min-height: 160px;
+    border-radius: 15px;
+  }
+
+  .traffic-light {
+    margin-top: 0.75rem;
+    padding: 0.48rem 0.62rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .card-vehicle {
+    padding: 0.8rem;
+    border-radius: 18px;
+  }
+
+  .card-vehicle-info h2 {
+    font-size: 1.08rem;
+  }
+
+  .card-traffic-img-light img,
+  .vehicle-image-placeholder {
+    height: 145px;
+    min-height: 145px;
+  }
+}
