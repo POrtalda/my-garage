@@ -242,3 +242,71 @@ body.dark .menu-user {
     transform: none;
   }
 }
+
+/* Mobile UI polish */
+
+@media (max-width: 720px) {
+  .menu {
+    gap: 0.45rem;
+    padding: 0.6rem 0.7rem;
+  }
+
+  .menu-brand {
+    min-height: 36px;
+    font-size: 1.55rem;
+  }
+
+  .menu-links {
+    gap: 0.28rem;
+    font-size: 0.86rem;
+  }
+
+  .menu-links li a {
+    min-height: 32px;
+    padding: 0.38rem 0.58rem;
+    border-radius: 9px;
+  }
+
+  .menu-actions {
+    gap: 0.55rem;
+    margin-top: 0.65rem;
+    margin-bottom: 0.25rem;
+    padding: 0;
+  }
+
+  .menu-user {
+    min-width: 0;
+    width: 100%;
+    padding: 0.45rem 0.7rem;
+    border-radius: 12px;
+  }
+
+  .menu-user-label {
+    font-size: 0.62rem;
+  }
+
+  .menu-user strong {
+    font-size: 0.84rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .menu {
+    padding-inline: 0.55rem;
+  }
+
+  .menu-brand {
+    font-size: 1.42rem;
+  }
+
+  .menu-links li a {
+    min-height: 31px;
+    padding: 0.35rem 0.48rem;
+    font-size: 0.8rem;
+  }
+
+  .menu-actions {
+    gap: 0.45rem;
+    margin-top: 0.55rem;
+  }
+}
