@@ -135,3 +135,49 @@ body.dark .notification-settings__error {
   font-size: 0.95rem;
   line-height: 1.5;
 }
+
+/* Mobile UI polish */
+
+@media (max-width: 640px) {
+  .notification-settings {
+    width: calc(100% - 1rem);
+    margin: 0.8rem auto 1.5rem;
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .notification-settings__header {
+    margin-bottom: 1rem;
+  }
+
+  .notification-settings__header h2 {
+    font-size: 1.25rem;
+  }
+
+  .notification-settings__header p,
+  .notification-settings__hint {
+    font-size: 0.9rem;
+  }
+
+  .notification-settings__card {
+    gap: 0.85rem;
+    padding: 0.9rem;
+    border-radius: 14px;
+  }
+
+  .notification-settings__option {
+    gap: 0.65rem;
+    padding: 0.85rem;
+    border-radius: 13px;
+  }
+
+  .notification-settings__option span {
+    font-size: 0.92rem;
+  }
+
+  .notification-settings__button {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+}
