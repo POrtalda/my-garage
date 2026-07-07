@@ -325,7 +325,7 @@ function AppRoutesContent() {
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode }}>
-      <Menu title="My Garage" onAddVehicle={handleAddVehicle} />
+      <Menu onAddVehicle={handleAddVehicle} />
 
       <div className="main-content">
         <Routes>
