@@ -425,15 +425,18 @@ function AppRoutesContent() {
             path="/"
             element={
               <ProtectedRoute>
-                <App
-                  vehicles={sortVehiclesByUrgency(vehicles)}
-                  showDashboard
-                  isLoading={isLoading}
-                  error={error}
-                  onRetry={fetchVehicles}
-                  emptyTitle="Nessun veicolo presente"
-                  emptyDescription="Aggiungi il tuo primo veicolo per iniziare a monitorare le scadenze."
-                />
+                <>
+                  <HomeSortingNote />
+                  <App
+                    vehicles={sortVehiclesByUrgency(vehicles)}
+                    showDashboard
+                    isLoading={isLoading}
+                    error={error}
+                    onRetry={fetchVehicles}
+                    emptyTitle="Nessun veicolo presente"
+                    emptyDescription="Aggiungi il tuo primo veicolo per iniziare a monitorare le scadenze."
+                  />
+                </>
               </ProtectedRoute>
             }
           />
@@ -516,6 +519,21 @@ function AppRoutesContent() {
         </Routes>
       </div>
     </ThemeContext.Provider>
+  );
+}
+
+function HomeSortingNote() {
+  return (
+    <section className="home-sorting-note" aria-label="Ordinamento veicoli">
+      <div className="home-sorting-note__icon">⚡</div>
+      <div>
+        <strong>Veicoli ordinati per urgenza</strong>
+        <p>
+          Mostriamo prima le scadenze già superate, poi quelle entro 30 giorni
+          e infine i veicoli in regola.
+        </p>
+      </div>
+    </section>
   );
 }
 

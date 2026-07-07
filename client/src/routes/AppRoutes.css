@@ -1,10 +1,12 @@
 body.light {
-  background-color: #f0f4f8; /* più chiaro e moderno */
+  background-color: #f0f4f8;
+  /* più chiaro e moderno */
   color: #222;
 }
 
 body.dark {
-  background-color: #1e1e2f; /* scuro ma meno pesante del nero puro */
+  background-color: #1e1e2f;
+  /* scuro ma meno pesante del nero puro */
   color: #f5f5f5;
 }
 
@@ -17,5 +19,129 @@ body {
 
 /* contenuto spinto sotto il menu fisso */
 .main-content {
-  padding-top: 80px; /* altezza menu */
+  padding-top: 80px;
+  /* altezza menu */
+}
+
+.home-sorting-note {
+  display: flex;
+  width: min(100%, 1180px);
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin: 0 auto 1rem;
+  padding: 0 1rem;
+  color: var(--color-text);
+  animation: homeSortingNoteIn 0.3s ease both;
+}
+
+.home-sorting-note> div:last-child {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(37, 99, 235, 0.14);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9)),
+    var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-sorting-note__icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-soft-text);
+  font-size: 1.15rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.home-sorting-note strong {
+  display: block;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.home-sorting-note p {
+  margin: 0.2rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+body.dark .home-sorting-note {
+  color: #f8fafc;
+}
+
+body.dark .home-sorting-note> div:last-child {
+  border-color: rgba(147, 197, 253, 0.18);
+  background:
+    linear-gradient(145deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.92)),
+    #0f172a;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+body.dark .home-sorting-note__icon {
+  background: rgba(96, 165, 250, 0.16);
+  color: #dbeafe;
+}
+
+body.dark .home-sorting-note strong {
+  color: #f8fafc;
+}
+
+body.dark .home-sorting-note p {
+  color: #cbd5e1;
+}
+
+@keyframes homeSortingNoteIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .home-sorting-note {
+    gap: 0.65rem;
+    margin-bottom: 0.85rem;
+    padding: 0 0.85rem;
+  }
+
+  .home-sorting-note__icon {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+  }
+
+  .home-sorting-note> div:last-child {
+    padding: 0.75rem 0.85rem;
+    border-radius: var(--radius-md);
+  }
+
+  .home-sorting-note strong {
+    font-size: 0.9rem;
+  }
+
+  .home-sorting-note p {
+    font-size: 0.82rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-sorting-note {
+    animation: none;
+  }
 }
