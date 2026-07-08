@@ -11,7 +11,7 @@ const notificationLogSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ["weekly-expiry-email"],
+      enum: ["weekly-expiry-email", "daily-expiry-push"],
     },
     periodKey: {
       type: String,
