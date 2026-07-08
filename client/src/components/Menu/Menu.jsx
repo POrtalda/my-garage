@@ -7,7 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import NewVehicle from "../NewVehicle/NewVehicle";
 
-export default function Menu({ title, onAddVehicle }) {
+export default function Menu({ onAddVehicle }) {
   const { isDarkMode } = useContext(ThemeContext);
   const { user, isAuthenticated, logout } = useAuth();
   const { showToast } = useToast();
@@ -46,16 +46,18 @@ export default function Menu({ title, onAddVehicle }) {
           className={isDarkMode ? "menu menu_dark" : "menu menu_light"}
           aria-label="Navigazione principale"
         >
-          {title && (
-            <NavLink
-              to="/"
-              className="menu-brand"
-              onClick={closeModalOnly}
-              end
-            >
-              {title}
-            </NavLink>
-          )}
+          <NavLink
+            to="/"
+            className="menu-brand"
+            aria-label="Vai alla Home di My Garage"
+            onClick={closeModalOnly}
+            end
+          >
+            <span className="menu-brand-mark" aria-hidden="true">
+              MG
+            </span>
+            <span className="menu-brand-text">My Garage</span>
+          </NavLink>
 
           <ul className="menu-links">
             <li>
@@ -81,8 +83,6 @@ export default function Menu({ title, onAddVehicle }) {
           </ul>
         </nav>
       )}
-
-      {!isAuthenticated && title && <h1 className="guest-title">{title}</h1>}
 
       <div
         className={

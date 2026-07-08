@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import App from "../App";
 import "./AppRoutes.css";
 import Menu from "../components/Menu/Menu";
+import Footer from "../components/Footer/Footer";
 import ThemeContext from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
@@ -444,6 +445,8 @@ function AppRoutesContent() {
           />
         </Routes>
       </div>
+
+      <Footer />
     </ThemeContext.Provider>
   );
 }
