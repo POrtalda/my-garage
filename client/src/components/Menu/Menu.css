@@ -68,7 +68,7 @@ body.dark .menu {
 }
 
 .menu-brand-text {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
 }
 
 body.dark .menu-brand,
@@ -241,7 +241,7 @@ body.dark .menu-user strong {
   }
 
   .menu-brand-text {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 
   .menu-links {
@@ -301,7 +301,7 @@ body.dark .menu-user strong {
   }
 
   .menu-brand-text {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
   }
 
   .menu-links li a {
@@ -317,6 +317,7 @@ body.dark .menu-user strong {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .menu-brand,
   .menu-links li a,
   .menu-logout {

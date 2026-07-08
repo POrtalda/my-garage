@@ -27,21 +27,10 @@ export default function DashboardSummary({ vehicles }) {
         vehicle.expiring_revision
     ).length;
 
-    const ok = safeVehicles.filter(
-      (vehicle) =>
-        !vehicle.expired_car_tax &&
-        !vehicle.expired_insurance &&
-        !vehicle.expired_revision &&
-        !vehicle.expiring_car_tax &&
-        !vehicle.expiring_insurance &&
-        !vehicle.expiring_revision
-    ).length;
-
     return {
       total,
       expired,
       expiring,
-      ok,
     };
   }, [vehicles]);
 
@@ -74,11 +63,6 @@ export default function DashboardSummary({ vehicles }) {
           <span className="dashboard-summary-label">In scadenza</span>
           <strong>{dashboardSummary.expiring}</strong>
         </button>
-
-        <div className="dashboard-summary-card dashboard-summary-card--ok">
-          <span className="dashboard-summary-label">Tutto ok</span>
-          <strong>{dashboardSummary.ok}</strong>
-        </div>
       </div>
     </section>
   );
