@@ -10,76 +10,7 @@ const {
 } = require("../utils/expiryAlerts");
 
 const WEEKLY_EXPIRY_EMAIL_TYPE = "weekly-expiry-email";
-
-const sendWeeklyPushNotifications = async (user, alerts, summary) => {
-  const subscriptions = await PushSubscription.find({
-    user: user._id,
-    isActive: true,
-  });
-
-  if (subscriptions.length === 0) {
-    summary.pushSkippedNoSubscription += 1;
-    return;
-  }
-
-  const expiredCount = alerts.filter(
-    (alert) => alert.status === "expired"
-  ).length;
-
-  const expiringCount = alerts.filter(
-    (alert) => alert.status === "expiring"
-  ).length;
-
-  const bodyParts = [];
-
-  if (expiredCount > 0) {
-    bodyParts.push(`${expiredCount} scadenze già scadute`);
-  }
-
-  if (expiringCount > 0) {
-    bodyParts.push(`${expiringCount} scadenze in arrivo`);
-  }
-
-  const payload = {
-    title: "My Garage - Scadenze veicoli",
-    body:
-      bodyParts.length > 0
-        ? `Hai ${bodyParts.join(" e ")} da controllare.`
-        : "Hai scadenze veicoli da controllare.",
-    url: "/",
-  };
-
-  await Promise.all(
-    subscriptions.map(async (subscription) => {
-      try {
-        await sendPushNotification(subscription, payload);
-
-        subscription.lastUsedAt = new Date();
-        await subscription.save();
-
-        summary.pushSent += 1;
-      } catch (error) {
-        summary.pushFailed += 1;
-
-        const statusCode = error.statusCode || error.status;
-
-        summary.failures.push({
-          user: user.email,
-          channel: "push",
-          endpoint: subscription.endpoint,
-          statusCode,
-          message: error.message,
-        });
-
-        if (statusCode === 404 || statusCode === 410) {
-          subscription.isActive = false;
-          await subscription.save();
-          summary.pushDisabledSubscriptions += 1;
-        }
-      }
-    })
-  );
-};
+const DAILY_EXPIRY_PUSH_TYPE = "daily-expiry-push";
 
 function getCurrentWeekKey(date = new Date()) {
   const currentDate = new Date(
@@ -96,6 +27,10 @@ function getCurrentWeekKey(date = new Date()) {
     2,
     "0"
   )}`;
+}
+
+function getCurrentDayKey(date = new Date()) {
+  return date.toISOString().slice(0, 10);
 }
 
 function buildWeeklyEmailText({ user, alerts }) {
@@ -115,6 +50,35 @@ function buildWeeklyEmailText({ user, alerts }) {
     "A presto,",
     "My Garage",
   ].join("\n");
+}
+
+function buildPushPayload(alerts) {
+  const expiredCount = alerts.filter(
+    (alert) => alert.status === "expired"
+  ).length;
+
+  const expiringCount = alerts.filter(
+    (alert) => alert.status === "expiring"
+  ).length;
+
+  const bodyParts = [];
+
+  if (expiredCount > 0) {
+    bodyParts.push(`${expiredCount} scadenze già scadute`);
+  }
+
+  if (expiringCount > 0) {
+    bodyParts.push(`${expiringCount} scadenze in arrivo`);
+  }
+
+  return {
+    title: "My Garage - Scadenze veicoli",
+    body:
+      bodyParts.length > 0
+        ? `Hai ${bodyParts.join(" e ")} da controllare.`
+        : "Hai scadenze veicoli da controllare.",
+    url: "/",
+  };
 }
 
 function checkCronSecret(req, res) {
@@ -145,6 +109,55 @@ function checkCronSecret(req, res) {
   return true;
 }
 
+async function sendPushNotificationsToUser({ user, alerts, summary }) {
+  const subscriptions = await PushSubscription.find({
+    user: user._id,
+    isActive: true,
+  });
+
+  if (subscriptions.length === 0) {
+    summary.skippedNoSubscription += 1;
+    return false;
+  }
+
+  const payload = buildPushPayload(alerts);
+  let hasSentAtLeastOnePush = false;
+
+  await Promise.all(
+    subscriptions.map(async (subscription) => {
+      try {
+        await sendPushNotification(subscription, payload);
+
+        subscription.lastUsedAt = new Date();
+        await subscription.save();
+
+        summary.pushSent += 1;
+        hasSentAtLeastOnePush = true;
+      } catch (error) {
+        summary.pushFailed += 1;
+
+        const statusCode = error.statusCode || error.status;
+
+        summary.failures.push({
+          user: user.email,
+          channel: "push",
+          endpoint: subscription.endpoint,
+          statusCode,
+          message: error.message,
+        });
+
+        if (statusCode === 404 || statusCode === 410) {
+          subscription.isActive = false;
+          await subscription.save();
+          summary.disabledSubscriptions += 1;
+        }
+      }
+    })
+  );
+
+  return hasSentAtLeastOnePush;
+}
+
 async function sendWeeklyExpiryEmails(req, res) {
   if (!checkCronSecret(req, res)) {
     return;
@@ -163,10 +176,6 @@ async function sendWeeklyExpiryEmails(req, res) {
       skippedAlreadySent: 0,
       skippedDisabled: 0,
       failed: 0,
-      pushSent: 0,
-      pushFailed: 0,
-      pushSkippedNoSubscription: 0,
-      pushDisabledSubscriptions: 0,
       failures: [],
     };
 
@@ -205,8 +214,6 @@ async function sendWeeklyExpiryEmails(req, res) {
           text: buildWeeklyEmailText({ user, alerts }),
         });
 
-        await sendWeeklyPushNotifications(user, alerts, summary);
-
         await NotificationLog.create({
           user: user._id,
           type: WEEKLY_EXPIRY_EMAIL_TYPE,
@@ -220,25 +227,108 @@ async function sendWeeklyExpiryEmails(req, res) {
         summary.failures.push({
           userId: user._id,
           email: user.email,
-          channel: "weekly-expiry-notification",
+          channel: "weekly-expiry-email",
           message: error.message,
         });
       }
     }
 
     res.json({
-      message: "Controllo notifiche settimanali completato.",
+      message: "Controllo email settimanali completato.",
       summary,
     });
   } catch (error) {
-    console.error("Errore notifiche settimanali:", error);
+    console.error("Errore email settimanali:", error);
 
     res.status(500).json({
-      message: "Errore durante l'invio delle notifiche settimanali.",
+      message: "Errore durante l'invio delle email settimanali.",
+    });
+  }
+}
+
+async function sendDailyExpiryPushNotifications(req, res) {
+  if (!checkCronSecret(req, res)) {
+    return;
+  }
+
+  try {
+    const periodKey = getCurrentDayKey();
+
+    const users = await User.find().select("name email notifications");
+
+    const summary = {
+      periodKey,
+      usersChecked: users.length,
+      pushSent: 0,
+      pushFailed: 0,
+      skippedNoAlerts: 0,
+      skippedAlreadySent: 0,
+      skippedNoSubscription: 0,
+      disabledSubscriptions: 0,
+      failed: 0,
+      failures: [],
+    };
+
+    for (const user of users) {
+      const vehicles = await Vehicle.find({ user: user._id });
+      const alerts = buildExpiryAlertsForVehicles(vehicles);
+
+      if (alerts.length === 0) {
+        summary.skippedNoAlerts += 1;
+        continue;
+      }
+
+      const existingLog = await NotificationLog.findOne({
+        user: user._id,
+        type: DAILY_EXPIRY_PUSH_TYPE,
+        periodKey,
+      });
+
+      if (existingLog) {
+        summary.skippedAlreadySent += 1;
+        continue;
+      }
+
+      try {
+        const pushSent = await sendPushNotificationsToUser({
+          user,
+          alerts,
+          summary,
+        });
+
+        if (pushSent) {
+          await NotificationLog.create({
+            user: user._id,
+            type: DAILY_EXPIRY_PUSH_TYPE,
+            periodKey,
+            alertCount: alerts.length,
+          });
+        }
+      } catch (error) {
+        summary.failed += 1;
+        summary.failures.push({
+          userId: user._id,
+          email: user.email,
+          channel: "daily-expiry-push",
+          message: error.message,
+        });
+      }
+    }
+
+    res.json({
+      message: "Controllo push giornaliere completato.",
+      summary,
+    });
+  } catch (error) {
+    console.error("Errore push giornaliere:", error);
+
+    res.status(500).json({
+      message: "Errore durante l'invio delle push giornaliere.",
     });
   }
 }
 
 module.exports = {
+  sendDailyExpiryPushNotifications,
   sendWeeklyExpiryEmails,
 };
