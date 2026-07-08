@@ -85,12 +85,13 @@ function checkCronSecret(req, res) {
   const configuredSecret = process.env.INTERNAL_CRON_SECRET;
   const headerSecret = req.get("x-cron-secret");
   const authorizationHeader = req.get("authorization");
+  const querySecret = req.query.cronSecret || req.query.secret;
 
   const bearerSecret = authorizationHeader?.startsWith("Bearer ")
     ? authorizationHeader.replace("Bearer ", "").trim()
     : null;
 
-  const requestSecret = headerSecret || bearerSecret;
+  const requestSecret = headerSecret || bearerSecret || querySecret;
 
   if (!configuredSecret) {
     res.status(500).json({
