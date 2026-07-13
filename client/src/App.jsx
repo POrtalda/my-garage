@@ -45,7 +45,7 @@ function App({
           <StateMessage
             icon="⏳"
             title="Caricamento veicoli..."
-            description="Sto recuperando le informazioni del tuo garage. Se il backend gratuito su Render si sta avviando, potrebbe servire qualche secondo."
+            description="Sto recuperando le informazioni dei tuoi veicoli. Potrebbero servire alcuni secondi."
           />
         ) : error ? (
           <StateMessage
