@@ -156,7 +156,7 @@ function AppRoutesContent() {
           }
         } else {
           setError(
-            "Non riesco a caricare i veicoli. Il server potrebbe essere in fase di avvio: riprova tra qualche secondo."
+            "Non riesco a caricare i veicoli in questo momento. Riprova tra qualche secondo."
           );
 
           if (showErrorToast) {
@@ -164,7 +164,7 @@ function AppRoutesContent() {
               type: "error",
               title: "Caricamento non riuscito",
               message:
-                "Il backend potrebbe essere in fase di avvio. Riprova tra qualche secondo.",
+                "Il caricamento sta richiedendo più tempo del previsto. Riprova tra qualche secondo.",
             });
           }
         }
