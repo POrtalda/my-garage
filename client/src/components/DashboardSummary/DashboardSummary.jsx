@@ -1,5 +1,32 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { useNavigate } from "react-router";
+
+const cards = {
+  total: {
+    label: "Veicoli totali",
+    caption: "Registrati nel garage",
+    icon: "\u{1F697}",
+    accent:
+      "from-blue-500/15 to-cyan-500/5 text-blue-700 dark:text-blue-200",
+    border: "border-blue-500/20",
+  },
+  expired: {
+    label: "Scaduti",
+    caption: "Richiedono attenzione",
+    icon: "\u26A0\uFE0F",
+    accent:
+      "from-red-500/15 to-orange-500/5 text-red-700 dark:text-red-200",
+    border: "border-red-500/20",
+  },
+  expiring: {
+    label: "In scadenza",
+    caption: "Da controllare presto",
+    icon: "\u23F3",
+    accent:
+      "from-amber-500/20 to-yellow-500/5 text-amber-700 dark:text-amber-200",
+    border: "border-amber-500/25",
+  },
+};
 
 export default function DashboardSummary({ vehicles }) {
   const navigate = useNavigate();
@@ -10,95 +37,79 @@ export default function DashboardSummary({ vehicles }) {
 
   const dashboardSummary = useMemo(() => {
     const safeVehicles = vehicles ?? [];
-    const total = safeVehicles.length;
-
-    const expired = safeVehicles.filter(
-      (vehicle) =>
-        vehicle.expired_car_tax ||
-        vehicle.expired_insurance ||
-        vehicle.expired_revision
-    ).length;
-
-    const expiring = safeVehicles.filter(
-      (vehicle) =>
-        vehicle.expiring_car_tax ||
-        vehicle.expiring_insurance ||
-        vehicle.expiring_revision
-    ).length;
 
     return {
-      total,
-      expired,
-      expiring,
+      total: safeVehicles.length,
+      expired: safeVehicles.filter(
+        (vehicle) =>
+          vehicle.expired_car_tax ||
+          vehicle.expired_insurance ||
+          vehicle.expired_revision
+      ).length,
+      expiring: safeVehicles.filter(
+        (vehicle) =>
+          vehicle.expiring_car_tax ||
+          vehicle.expiring_insurance ||
+          vehicle.expiring_revision
+      ).length,
     };
   }, [vehicles]);
 
-  const cardClassName = (type = "total") =>
-    [
-      "relative isolate flex min-h-[92px] cursor-pointer flex-col justify-between gap-[0.55rem] overflow-hidden rounded-[20px] border border-slate-900/8 border-l-[6px] bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(236,254,255,0.94))] px-4 py-[0.9rem] text-left font-[inherit] text-[#15313b] shadow-[0_12px_26px_rgba(0,105,92,0.1),inset_0_1px_0_rgba(255,255,255,0.8)] transition-[transform,box-shadow,border-color] duration-200",
-      "before:absolute before:-top-1/2 before:left-[54%] before:-z-10 before:h-[135px] before:w-[135px] before:rounded-full before:content-[''] before:transition-[transform,opacity] before:duration-200",
-      "hover:-translate-y-[3px] hover:shadow-[0_16px_34px_rgba(15,23,42,0.14),inset_0_1px_0_rgba(255,255,255,0.9)] hover:before:scale-110 hover:before:opacity-95",
-      "focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-teal-500/35",
-      "dark:border-white/8 dark:bg-[linear-gradient(135deg,rgba(47,47,66,0.98),rgba(37,39,55,0.94))] dark:text-slate-50 dark:shadow-[0_14px_30px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.06)]",
-      "dark:hover:shadow-[0_18px_38px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.08)]",
-      "max-[560px]:min-h-0 max-[560px]:items-center max-[560px]:border-l-0 max-[560px]:border-t-[5px] max-[560px]:text-center",
-      "max-[480px]:min-h-[86px] max-[480px]:rounded-[17px] max-[480px]:p-[0.8rem] max-[480px]:hover:translate-y-0",
-      "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:before:transition-none",
-      type === "expired"
-        ? "border-l-red-500 before:bg-red-500/16 dark:border-l-red-300 max-[560px]:border-t-red-700 dark:max-[560px]:border-t-red-300"
-        : "",
-      type === "expiring"
-        ? "border-l-orange-500 before:bg-orange-500/18 dark:border-l-amber-300 max-[560px]:border-t-amber-500 dark:max-[560px]:border-t-amber-300"
-        : "",
-      type === "total"
-        ? "border-l-cyan-500 before:bg-teal-500/14 dark:border-l-teal-300 max-[560px]:border-t-teal-500 dark:max-[560px]:border-t-teal-300"
-        : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-
-  const labelClassName =
-    "relative z-10 text-[0.78rem] font-extrabold uppercase leading-[1.25] tracking-[0.01em] text-slate-600 dark:text-[#b7c3cf] max-[480px]:text-[0.68rem]";
-
-  const valueClassName =
-    "relative z-10 text-[clamp(1.65rem,3vw,2.05rem)] leading-none tracking-[-0.04em] max-[480px]:text-[1.65rem]";
+  const items = [
+    { type: "total", value: dashboardSummary.total, path: "/" },
+    { type: "expired", value: dashboardSummary.expired, path: "/expired" },
+    {
+      type: "expiring",
+      value: dashboardSummary.expiring,
+      path: "/expiring",
+    },
+  ];
 
   return (
     <section
-      className="mx-auto mb-4 mt-[0.35rem] w-full max-w-[1040px] px-4 motion-safe:animate-[dashboard-fade-up_0.35s_ease_both] max-[768px]:mt-[0.4rem] max-[768px]:max-w-[600px] max-[480px]:px-3"
+      className="mx-auto mb-4 w-[min(100%-2rem,1120px)] motion-safe:animate-[dashboard-fade-up_0.35s_ease_both] max-[768px]:w-[min(100%-1.5rem,600px)]"
       aria-label="Riepilogo veicoli"
     >
-      <div className="grid grid-cols-3 gap-[0.85rem] max-[768px]:gap-[0.8rem] max-[560px]:grid-cols-1 max-[480px]:gap-[0.7rem]">
-        <button
-          type="button"
-          className={cardClassName("total")}
-          onClick={() => goToVehicleList("/")}
-        >
-          <span className={labelClassName}>Veicoli totali</span>
-          <strong className={valueClassName}>{dashboardSummary.total}</strong>
-        </button>
+      <div className="grid grid-cols-3 gap-4 max-[720px]:grid-cols-1">
+        {items.map(({ type, value, path }) => {
+          const card = cards[type];
 
-        <button
-          type="button"
-          className={cardClassName("expired")}
-          onClick={() => goToVehicleList("/expired")}
-        >
-          <span className={labelClassName}>Scaduti</span>
-          <strong className={valueClassName}>
-            {dashboardSummary.expired}
-          </strong>
-        </button>
+          return (
+            <button
+              key={type}
+              type="button"
+              onClick={() => goToVehicleList(path)}
+              className={`group relative overflow-hidden rounded-[22px] border bg-[var(--color-surface)] p-4 text-left text-[var(--color-text)] shadow-[0_14px_32px_rgba(15,23,42,0.09)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:shadow-[0_20px_42px_rgba(15,23,42,0.14)] dark:bg-slate-900/85 dark:text-slate-50 dark:shadow-[0_16px_36px_rgba(0,0,0,0.32)] dark:hover:shadow-[0_22px_46px_rgba(0,0,0,0.42)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${card.border}`}
+            >
+              <div
+                className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${card.accent}`}
+              />
 
-        <button
-          type="button"
-          className={cardClassName("expiring")}
-          onClick={() => goToVehicleList("/expiring")}
-        >
-          <span className={labelClassName}>In scadenza</span>
-          <strong className={valueClassName}>
-            {dashboardSummary.expiring}
-          </strong>
-        </button>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className="text-[0.75rem] font-black uppercase tracking-[0.08em] text-[var(--color-text-muted)] dark:text-slate-400">
+                    {card.label}
+                  </span>
+
+                  <strong className="mt-2 block text-[2.2rem] leading-none tracking-[-0.05em]">
+                    {value}
+                  </strong>
+
+                  <span className="mt-2 block text-[0.85rem] font-semibold text-[var(--color-text-muted)] dark:text-slate-400">
+                    {card.caption}
+                  </span>
+                </div>
+
+                <span
+                  className={`inline-flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br text-xl ${card.accent}`}
+                  aria-hidden="true"
+                >
+                  {card.icon}
+                </span>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
