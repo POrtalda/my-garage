@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { parseDate } from "../../utils/vehicleDates";
-import "./ExpiryAlerts.css";
 
 const expiryFields = [
     {
@@ -102,6 +101,17 @@ function getAlertMessage(alert) {
     return `${alert.type} in scadenza tra ${alert.daysDifference} giorni`;
 }
 
+const alertStyles = {
+    expired: {
+        item: "border-l-[5px] border-l-[#d32f2f]",
+        dot: "bg-[#d32f2f]",
+    },
+    expiring: {
+        item: "border-l-[5px] border-l-[#f9a825]",
+        dot: "bg-[#f9a825]",
+    },
+};
+
 export default function ExpiryAlerts({ vehicles }) {
     const alerts = useMemo(() => buildExpiryAlerts(vehicles), [vehicles]);
 
@@ -110,32 +120,52 @@ export default function ExpiryAlerts({ vehicles }) {
     }
 
     return (
-        <section className="expiry-alerts" aria-label="Avvisi scadenze">
-            <div className="expiry-alerts-header">
+        <section
+            className="mx-auto mb-6 w-[min(100%,960px)] rounded-[18px] bg-white p-[1.2rem] text-[#222] shadow-[0_6px_16px_rgba(0,0,0,0.12)] dark:bg-[#2f2f42] dark:text-[#f5f5f5] dark:shadow-[0_6px_16px_rgba(0,0,0,0.35)] max-[768px]:w-[calc(100%-1.5rem)] max-[768px]:max-w-[560px] max-[768px]:p-4 max-[480px]:rounded-[14px]"
+            aria-label="Avvisi scadenze"
+        >
+            <div className="mb-4 flex items-center justify-between gap-4 max-[768px]:items-start">
                 <div>
-                    <span className="expiry-alerts-kicker">Notifiche</span>
-                    <h2>Avvisi scadenze</h2>
+                    <span className="mb-0.5 block text-[0.8rem] font-bold uppercase tracking-[0.08em] opacity-65">
+                        Notifiche
+                    </span>
+
+                    <h2 className="m-0 text-[1.35rem] font-bold max-[480px]:text-[1.15rem]">
+                        Avvisi scadenze
+                    </h2>
                 </div>
 
-                {alerts.length > 0 && (
-                    <span className="expiry-alerts-count">{alerts.length}</span>
-                )}
+                <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-[#fdecea] px-[0.6rem] font-extrabold text-[#b71c1c] dark:bg-[rgba(211,47,47,0.2)] dark:text-[#ff8a80]">
+                    {alerts.length}
+                </span>
             </div>
 
-            <ul className="expiry-alerts-list">
-                {alerts.map((alert) => (
-                    <li
-                        key={alert.id}
-                        className={`expiry-alert expiry-alert--${alert.status}`}
-                    >
-                        <span className="expiry-alert-dot" aria-hidden="true" />
+            <ul className="m-0 grid list-none gap-3 p-0">
+                {alerts.map((alert) => {
+                    const styles = alertStyles[alert.status];
 
-                        <div>
-                            <strong>{alert.vehicleName}</strong>
-                            <p>{getAlertMessage(alert)}</p>
-                        </div>
-                    </li>
-                ))}
+                    return (
+                        <li
+                            key={alert.id}
+                            className={`grid grid-cols-[auto_1fr] items-start gap-3 rounded-[14px] bg-[#f7f8fb] p-[0.9rem] dark:bg-[#252536] max-[480px]:p-[0.8rem] ${styles.item}`}
+                        >
+                            <span
+                                className={`mt-[0.35rem] h-3 w-3 rounded-full ${styles.dot}`}
+                                aria-hidden="true"
+                            />
+
+                            <div>
+                                <strong className="mb-[0.15rem] block">
+                                    {alert.vehicleName}
+                                </strong>
+
+                                <p className="m-0 leading-[1.45] opacity-80 dark:text-[#d7d7e5] dark:opacity-100">
+                                    {getAlertMessage(alert)}
+                                </p>
+                            </div>
+                        </li>
+                    );
+                })}
             </ul>
         </section>
     );
