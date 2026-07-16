@@ -20,7 +20,8 @@ function App({
 }) {
   const { isDarkMode } = useContext(ThemeContext);
   const location = useLocation();
-  const shouldShowHomeSummary = showDashboard && !isLoading && !error && vehicles.length > 0;
+  const shouldShowHomeSummary =
+    showDashboard && !isLoading && !error && vehicles.length > 0;
 
   useEffect(() => {
     if (!location.state?.scrollToVehicles || isLoading) {
@@ -36,6 +37,24 @@ function App({
 
   return (
     <div className={isDarkMode ? "app dark" : "app light"}>
+      {showDashboard && (
+        <section className="home-hero" aria-labelledby="home-title">
+          <div>
+            <span className="home-hero__eyebrow">Panoramica garage</span>
+            <h1 id="home-title">Tutto sotto controllo, in un solo posto.</h1>
+            <p>
+              Controlla rapidamente lo stato dei tuoi veicoli e intervieni
+              prima delle prossime scadenze.
+            </p>
+          </div>
+
+          <div className="home-hero__badge" aria-label="Veicoli registrati">
+            <span>Veicoli</span>
+            <strong>{vehicles.length}</strong>
+          </div>
+        </section>
+      )}
+
       {showDashboard && <DashboardSummary vehicles={vehicles} />}
 
       {shouldShowHomeSummary && <PrioritySummary vehicles={vehicles} />}
@@ -43,13 +62,13 @@ function App({
       <section id="vehicles-list" className="vehicles-list-section">
         {isLoading ? (
           <StateMessage
-            icon="⏳"
+            icon={"\u23F3"}
             title="Caricamento veicoli..."
             description="Sto recuperando le informazioni dei tuoi veicoli. Potrebbero servire alcuni secondi."
           />
         ) : error ? (
           <StateMessage
-            icon="⚠️"
+            icon={"\u26A0\uFE0F"}
             title="Qualcosa è andato storto"
             description={error}
             type="error"
@@ -58,7 +77,7 @@ function App({
           />
         ) : vehicles.length === 0 ? (
           <EmptyState
-            icon="🚗"
+            icon={"\u{1F697}"}
             title={emptyTitle}
             description={emptyDescription}
           />
