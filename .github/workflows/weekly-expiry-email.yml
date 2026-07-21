@@ -1,0 +1,28 @@
+﻿name: Weekly expiry email
+
+on:
+  schedule:
+    - cron: "15 8 * * 1"
+      timezone: "Europe/Rome"
+  workflow_dispatch:
+
+jobs:
+  send-weekly-expiry-email:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger weekly expiry email
+        env:
+          API_URL: ${{ secrets.WEEKLY_EXPIRY_API_URL }}
+          CRON_SECRET: ${{ secrets.INTERNAL_CRON_SECRET }}
+        run: |
+          response=$(curl \
+            --silent \
+            --show-error \
+            --fail-with-body \
+            --request POST \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "${API_URL}")
+
+          echo "${response}"
+
