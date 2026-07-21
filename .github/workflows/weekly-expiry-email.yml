@@ -1,8 +1,8 @@
-﻿name: Weekly expiry email
+name: Weekly expiry email
 
 on:
   schedule:
-    - cron: "15 8 * * 1"
+    - cron: "15 8 * * 3"
       timezone: "Europe/Rome"
   workflow_dispatch:
 
@@ -25,4 +25,3 @@ jobs:
             "${API_URL}")
 
           echo "${response}"
-
